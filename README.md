@@ -26,6 +26,7 @@ A Wall Street style **US economic calendar** that runs in the browser. Countdown
 **Settings and defaults**
 - Gear icon: alerts, time zone, view to open on, auto refresh, compact rows. These save automatically.
 - **Save as default** at the bottom of the sidebar saves your filters (**Undo** reverts unsaved changes). **Reset to factory** in Settings undoes everything.
+- **Install as an app** (top of Settings): step-by-step help for iPhone/iPad, Android and PC/Mac, opened on the visitor's device, plus a one-click Install button where Chrome or Edge allows it
 - Keyboard: `R` refresh · `T` / `L` views · `A` alerts · `/` search · `Ctrl+S` save defaults
 
 **On phones**

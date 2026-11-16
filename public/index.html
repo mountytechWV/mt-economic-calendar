@@ -317,6 +317,23 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 @media (max-width:640px){.comm{display:none}}
 :root[data-theme="light"] .frame.dark .card{background:#fff}
 
+.htabs{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line2);margin:12px 0 4px}
+.htabs button{padding:8px 4px;font:600 12px var(--cond);letter-spacing:1.3px;text-transform:uppercase;color:var(--dim);border-right:1px solid var(--line2)}
+.htabs button:last-child{border-right:0}
+.htabs button:hover{color:var(--text);background:var(--panel2)}
+.htabs button.on{background:var(--amber);color:var(--on-accent)}
+.hpane{display:none}
+.hpane.on{display:block}
+.hsteps{margin:10px 0 0 0;padding:0;list-style:none;counter-reset:st}
+.hsteps li{position:relative;padding:6px 0 6px 34px;font:400 12.5px/1.5 var(--sans);color:var(--text);counter-increment:st}
+.hsteps li::before{content:counter(st);position:absolute;left:0;top:6px;width:22px;height:22px;display:grid;place-items:center;background:var(--amber);color:var(--on-accent);font:700 12px var(--mono)}
+.hsteps b{font-weight:600}
+.hsteps .ic{display:inline-block;width:16px;height:16px;vertical-align:-3px;color:var(--amber)}
+.hsteps .kbd{display:inline-block;min-width:18px;padding:0 4px;border:1px solid var(--line2);text-align:center;font-weight:700}
+.htip{margin-top:8px;padding:9px 11px;border-left:2px solid var(--amber);background:var(--panel);font:400 11.5px/1.5 var(--sans);color:var(--dim)}
+.inst-ok{margin-top:10px;font:600 12px var(--mono);color:var(--up)}
+.inst-now{width:100%;margin-top:10px}
+
 /* live */
 .frame{flex:1;min-height:0;padding:12px 14px;display:flex;flex-direction:column}
 .frame .card{flex:1;min-height:0;border:1px solid var(--line2);background:#fff}
@@ -660,6 +677,41 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 <aside class="drawer" id="drawer">
   <header><h3>Settings</h3><button class="ib" id="closeDrawer" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
   <div class="body">
+    <div class="grp" id="installGrp">
+      <h4>Install as an app</h4>
+      <div class="about">Put the calendar on your home screen or taskbar so it opens in its own window like a regular app. It's the same site, so it always stays up to date.</div>
+      <div class="inst-ok" id="instOk" hidden>✓ You're using the installed app.</div>
+      <button class="primary inst-now" id="instNow" hidden>Install now</button>
+      <div class="htabs" role="tablist">
+        <button data-p="ios">iPhone / iPad</button><button data-p="android">Android</button><button data-p="desktop">PC / Mac</button>
+      </div>
+      <div class="hpane" data-p="ios">
+        <ol class="hsteps">
+          <li>Open this page in <b>Safari</b>. Chrome on iPhone also works.</li>
+          <li>Tap the <b>Share</b> button <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>. It's at the bottom of the screen on iPhone and the top on iPad.</li>
+          <li>Scroll down and tap <b>Add to Home Screen</b>.</li>
+          <li>Tap <b>Add</b>. The icon appears on your home screen.</li>
+        </ol>
+        <div class="htip">Always open it from that icon. Phones pause web pages in the background, so alerts only fire while the app is on screen.</div>
+      </div>
+      <div class="hpane" data-p="android">
+        <ol class="hsteps">
+          <li>Open this page in <b>Chrome</b>.</li>
+          <li>Tap the menu <b class="kbd">⋮</b> at the top right.</li>
+          <li>Tap <b>Add to Home screen</b> (some phones say <b>Install app</b>).</li>
+          <li>Tap <b>Install</b>. The icon appears on your home screen and in your app drawer.</li>
+        </ol>
+        <div class="htip">Alerts only fire while the app is open on screen. Android pauses web apps in the background.</div>
+      </div>
+      <div class="hpane" data-p="desktop">
+        <ol class="hsteps">
+          <li><b>Chrome:</b> click the install icon <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M12 7.5v6M9.5 11l2.5 2.5 2.5-2.5M8 21h8"/></svg> at the right end of the address bar, then <b>Install</b>. No icon? Use the menu <b class="kbd">⋮</b> → <b>Cast, save and share</b> → <b>Install page as app</b>.</li>
+          <li><b>Edge:</b> menu <b class="kbd">⋯</b> → <b>Apps</b> → <b>Install this site as an app</b>.</li>
+          <li>The calendar opens in its own window. To keep it handy, right-click its taskbar icon (Windows) or Dock icon (Mac) and choose <b>Pin</b> / <b>Keep in Dock</b>.</li>
+        </ol>
+        <div class="htip">On a computer, alerts keep working while the app is minimized or behind other windows. Turn on <b>Desktop notifications</b> below so they pop up over whatever you're doing.</div>
+      </div>
+    </div>
     <div class="grp">
       <h4>Alerts</h4>
       <div class="fld"><label>Heads-up before release</label>
@@ -750,7 +802,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.3.3";
+const APP_VERSION = "3.4.0";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -1450,6 +1502,27 @@ function renderFredStatus(){
   el.className = cls; el.innerHTML = txt;
   if (st){ st.className = "keyst " + (cls.includes("ok") ? "ok" : cls.includes("bad") ? "bad" : ""); st.innerHTML = txt.replace(/<\/?b>/g, ""); }
 }
+/* ---------- install help ---------- */
+let INSTALL_EVT = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); INSTALL_EVT = e; syncInstall(); });
+window.addEventListener("appinstalled", () => { INSTALL_EVT = null; toast("Installed"); syncInstall(); });
+const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+function platform(){
+  const ua = navigator.userAgent || "";
+  if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return "ios";
+  if (/Android/i.test(ua)) return "android";
+  return "desktop";
+}
+function showHelpTab(p){
+  $$(".htabs button").forEach(b => b.classList.toggle("on", b.dataset.p === p));
+  $$(".hpane").forEach(x => x.classList.toggle("on", x.dataset.p === p));
+}
+function syncInstall(){
+  const ok = $("#instOk"), now = $("#instNow");
+  if (!ok) return;
+  ok.hidden = !isStandalone();
+  now.hidden = isStandalone() || !INSTALL_EVT;
+}
 let toastT;
 function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1800); }
 
@@ -1470,6 +1543,8 @@ function wire(){
     renderAll();
   };
   $("#stFred").onclick = () => openDrawer(true);
+  $$(".htabs button").forEach(b => b.onclick = () => showHelpTab(b.dataset.p));
+  $("#instNow").onclick = async () => { if (!INSTALL_EVT) return; INSTALL_EVT.prompt(); try { await INSTALL_EVT.userChoice; } catch(e){} INSTALL_EVT = null; syncInstall(); };
   $("#fredTerms2").onclick = () => Backend.open("https://fred.stlouisfed.org/docs/api/terms_of_use.html");
   $("#bellBtn").onclick = e => { e.stopPropagation(); toggleAlertsPop(); };
   $("#kAlerts").onclick = e => { e.stopPropagation(); toggleAlertsPop(true); };
@@ -1583,7 +1658,7 @@ async function boot(){
   if (!NATIVE){ $("#nativeSw").disabled = true; $("#nativeNote").textContent = "not supported in this browser"; }
   else if (S.alertNative && Notification.permission !== "granted"){ S.alertNative = false; }
   buildDrops(); wire(); syncControls(); renderClocks(); renderAll(); renderLive();
-  renderFredStatus();
+  renderFredStatus(); showHelpTab(platform()); syncInstall();
   await refresh(false);
   scheduleAuto();
   setInterval(tick, 1000);
