@@ -1,0 +1,1316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MT Economic Calendar</title>
+<meta name="description" content="A Wall Street style US economic calendar with countdowns, alerts, actuals and history.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{
+  --bg:#05070A; --bg2:#080B10; --panel:#0B1017; --panel2:#0F151E; --line:#1A2330; --line2:#243041;
+  --text:#D9E1EA; --dim:#7D8A99; --mute:#4A5666;
+  --amber:#FFB000; --amberglow:rgba(255,176,0,.13);
+  --up:#1FD67F; --down:#FF4D57; --cyan:#3CC8F0; --hol:#8B95A3;
+  --hi:#FF4D57; --med:#FFB000; --lo:#E8D36A;
+  --mono:"JetBrains Mono",Consolas,"Cascadia Mono",monospace;
+  --cond:"Barlow Condensed","Arial Narrow","Segoe UI",sans-serif;
+  --sans:Inter,"Segoe UI",system-ui,sans-serif;
+  --row:34px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;overflow:hidden}
+body.compact{--row:26px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select{font:inherit;color:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--line2);border:2px solid var(--bg2);border-radius:6px}
+svg{display:block}
+
+.app{display:grid;grid-template-rows:52px 30px 1fr 24px;height:100vh}
+
+/* ---------- top bar ---------- */
+.top{display:flex;align-items:center;gap:8px;padding:0 12px 0 0;background:linear-gradient(#0C1118,#080B10);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;height:100%;gap:12px;padding-right:18px;border-right:1px solid var(--line);white-space:nowrap}
+.brand .mark{height:100%;width:52px;display:grid;place-items:center;background:var(--amber);color:#000;font:700 22px/1 var(--cond)}
+.brand .name{font:700 19px/1 var(--cond);letter-spacing:2.2px;text-transform:uppercase}
+.brand .name span{color:var(--amber)}
+.brand .ver{font:500 10px var(--mono);color:var(--mute);margin-top:3px;letter-spacing:1px}
+.tabs{display:flex;height:100%;margin-right:auto}
+.tab{height:100%;padding:0 18px;font:600 14px var(--cond);letter-spacing:1.8px;text-transform:uppercase;color:var(--dim);border-bottom:2px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.02)}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber);background:var(--amberglow)}
+.clocks{display:flex;gap:2px;height:36px}
+.clock{padding:4px 11px;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;min-width:80px}
+.clock b{font:600 10px var(--cond);letter-spacing:1.6px;color:var(--dim)}
+.clock span{font:500 14px var(--mono)}
+.clock.home span{color:var(--amber)}
+@media (max-width:1320px){.clock.cx{display:none}}
+.mkt{display:flex;align-items:center;gap:8px;padding:0 12px;height:36px;border:1px solid var(--line);background:var(--panel);font:600 12px var(--cond);letter-spacing:1.6px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute);flex:none}
+.dot.live{background:var(--up);animation:pulse 2s infinite}
+.dot.warn{background:var(--amber)} .dot.bad{background:var(--down)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,214,127,.55)}70%{box-shadow:0 0 0 7px rgba(31,214,127,0)}100%{box-shadow:0 0 0 0 rgba(31,214,127,0)}}
+.ib{position:relative;width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line2);background:var(--panel2);color:var(--dim)}
+.ib:hover{color:var(--amber);border-color:var(--amber)}
+.ib.on{background:var(--amber);border-color:var(--amber);color:#000}
+.ib svg{width:16px;height:16px}
+.ib.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;background:var(--amber);color:#000;font:700 10.5px/17px var(--mono);text-align:center;display:none}
+.badge.on{display:block}
+
+/* ---------- ticker ---------- */
+.ticker{display:flex;align-items:center;background:#07090D;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
+.ticker .lbl{height:100%;display:flex;align-items:center;padding:0 14px;background:var(--amber);color:#000;font:700 12px var(--cond);letter-spacing:2px;flex:none}
+.ticker .track{flex:1;overflow:hidden;position:relative;height:100%;mask-image:linear-gradient(90deg,transparent,#000 30px,#000 calc(100% - 30px),transparent)}
+.ticker .run{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:34px;padding-left:24px;animation:tick 70s linear infinite;font:500 12px var(--mono)}
+.ticker .run:hover{animation-play-state:paused}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tk{display:flex;gap:9px;align-items:center}
+.tk .t{color:var(--dim)} .tk .c{color:var(--amber)}
+.tk .imp{width:6px;height:6px;background:var(--hi)}
+
+/* ---------- sidebar ---------- */
+.shell{display:grid;grid-template-columns:262px 1fr;min-height:0}
+.side{background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.side .scroll{flex:1;overflow-y:auto;padding:4px 0 16px}
+.side h4{font:600 11.5px var(--cond);letter-spacing:2.4px;color:var(--amber);text-transform:uppercase;padding:14px 16px 4px}
+.sf{padding:8px 16px}
+.sf>label{display:block;font:600 11px var(--cond);letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+.side .dd{width:100%}
+.side .ddb{width:100%;height:36px;justify-content:space-between;padding:0 10px 0 12px}
+.side .ddb .val{font:500 12.5px var(--sans);overflow:hidden;text-overflow:ellipsis}
+.side .ddb .val.f{color:var(--amber)}
+.side .ddp{left:0;right:0;top:40px;min-width:0}
+.opt.radio .cb{border-radius:50%}
+.opt.radio.on .cb{background:none;border-color:var(--amber)}
+.opt.radio.on .cb::after{content:"";width:6px;height:6px;border:0;border-radius:50%;background:var(--amber);transform:none}
+.side .search{width:100%;height:36px}
+.side .wbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.side .wbtn svg{width:14px;height:14px}
+.side .foot{padding:12px 16px;border-top:1px solid var(--line);background:var(--bg)}
+.side .dirtyln{font:500 11px var(--mono);color:var(--mute);margin-bottom:8px;min-height:14px}
+.side .dirtyln.on{color:var(--amber)}
+.side .btns{display:grid;grid-template-columns:1fr auto;gap:6px}
+.primary{height:38px;background:var(--amber);color:#000;font:700 13px var(--cond);letter-spacing:2px;text-transform:uppercase}
+.primary:hover{background:#FFC233}
+.primary:disabled{background:var(--panel2);color:var(--mute);cursor:default}
+.ghost{height:38px;padding:0 12px;border:1px solid var(--line2);font:600 12px var(--cond);letter-spacing:1.6px;text-transform:uppercase;color:var(--dim)}
+.ghost:hover:not(:disabled){color:var(--text);border-color:#3A4B62}
+.ghost:disabled{opacity:.4;cursor:default}
+body.v-live .term-only{display:none}
+body:not(.v-live) .live-only{display:none}
+
+/* ---------- views ---------- */
+.main{min-height:0;min-width:0;display:flex;flex-direction:column}
+.view{display:none;flex:1;min-height:0;flex-direction:column}
+.view.on{display:flex}
+
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr;border-bottom:1px solid var(--line)}
+.kpi{padding:9px 18px 10px;border-right:1px solid var(--line);background:var(--bg2);min-width:0}
+.kpi:last-child{border-right:0}
+.kpi h5{font:600 11px var(--cond);letter-spacing:2.2px;color:var(--dim);text-transform:uppercase;display:flex;gap:8px;align-items:center}
+.kpi .row{display:flex;align-items:baseline;gap:12px;min-width:0;margin-top:3px}
+.kpi .v{font:600 23px/1.15 var(--mono);letter-spacing:-.5px;white-space:nowrap}
+.kpi .s{font:500 11.5px var(--mono);color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.kpi.next .v{color:var(--amber)} .kpi.next .s{color:var(--text)}
+.v.up{color:var(--up)} .v.down{color:var(--down)} .v.warn{color:var(--amber)}
+.kpi.click{cursor:pointer} .kpi.click:hover{background:var(--panel)}
+
+/* toolbar */
+.bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--bg);flex-wrap:wrap}
+.bar .sep{width:1px;height:22px;background:var(--line2);margin:0 4px}
+.seg{display:flex;border:1px solid var(--line2);height:32px}
+.seg button{padding:0 13px;font:600 12.5px var(--cond);letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);border-right:1px solid var(--line2)}
+.seg button:last-child{border-right:0}
+.seg button:hover{color:var(--text);background:var(--panel2)}
+.seg button.on{background:var(--amber);color:#000}
+.dd{position:relative}
+.ddb{height:32px;display:flex;align-items:center;gap:8px;padding:0 10px 0 11px;border:1px solid var(--line2);background:var(--panel);white-space:nowrap}
+.ddb:hover,.dd.open .ddb{border-color:#3A4B62;background:var(--panel2)}
+.ddb .k{font:600 11.5px var(--cond);letter-spacing:1.8px;color:var(--dim);text-transform:uppercase}
+.ddb .val{font:500 12px var(--mono);color:var(--text)}
+.ddb .val.f{color:var(--amber)}
+.ddb .car{width:10px;height:10px;color:var(--mute)}
+.ddp{position:absolute;top:36px;left:0;min-width:210px;background:var(--panel2);border:1px solid var(--line2);box-shadow:0 14px 40px rgba(0,0,0,.6);z-index:40;display:none;padding:4px 0}
+.dd.open .ddp{display:block}
+.ddp .acts{display:flex;gap:14px;padding:6px 12px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.ddp .acts a{font:600 11px var(--cond);letter-spacing:1.6px;color:var(--dim);cursor:pointer;text-transform:uppercase}
+.ddp .acts a:hover{color:var(--amber)}
+.opt{display:flex;align-items:center;gap:10px;width:100%;padding:7px 12px;text-align:left;font:500 12.5px var(--sans);color:var(--dim)}
+.opt:hover{background:var(--panel);color:var(--text)}
+.opt .cb{width:14px;height:14px;border:1px solid var(--line2);flex:none;display:grid;place-items:center}
+.opt.on{color:var(--text)}
+.opt.on .cb{background:var(--amber);border-color:var(--amber)}
+.opt.on .cb::after{content:"";width:7px;height:4px;border:2px solid #000;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.search{display:flex;align-items:center;border:1px solid var(--line2);background:var(--panel);height:32px;width:230px}
+.search:focus-within{border-color:var(--amber)}
+.search span{padding:0 8px;color:var(--amber);font:700 12px var(--mono)}
+.search input{flex:1;min-width:0;background:none;border:0;outline:none;font:500 12px var(--mono)}
+.grow{flex:1}
+.savev{height:32px;padding:0 14px;display:flex;align-items:center;gap:8px;border:1px solid var(--line2);font:600 12.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;color:var(--mute);white-space:nowrap;cursor:default}
+.savev .d{width:7px;height:7px;background:var(--mute);border-radius:50%}
+.savev.dirty{color:#000;background:var(--amber);border-color:var(--amber);cursor:pointer}
+.savev.dirty .d{background:#000}
+.tbtn{height:32px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel);font:600 12.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.tbtn:hover{color:var(--amber);border-color:var(--amber)}
+.tbtn.on{color:var(--amber);border-color:var(--amber);background:var(--amberglow)}
+.tbtn svg{width:14px;height:14px}
+
+/* table */
+.tablewrap{flex:1;overflow:auto;min-height:0}
+table{width:100%;border-collapse:collapse;font:500 12.5px var(--mono)}
+thead th{position:sticky;top:0;z-index:3;background:#0A0E14;border-bottom:1px solid var(--line2);height:30px;padding:0 12px;text-align:left;font:600 11px var(--cond);letter-spacing:2px;color:var(--dim);text-transform:uppercase;white-space:nowrap}
+th.num,td.num{text-align:right}
+tbody td{height:var(--row);padding:0 12px;border-bottom:1px solid #0F151D;white-space:nowrap}
+tbody tr.ev:hover td{background:#0C121A}
+tr.day td{position:sticky;top:30px;z-index:2;height:30px;background:linear-gradient(90deg,#121A25,#0B1017 60%);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);font:700 12.5px var(--cond);letter-spacing:2.4px}
+tr.day td .meta{float:right;font:500 11px var(--mono);letter-spacing:0;color:var(--dim)}
+tr.day td .meta b{color:var(--hi);font-weight:600}
+tr.day.today td{color:var(--amber)}
+tr.day.today td::before{content:"● "}
+th.c-bell,td.c-bell{width:40px;padding:0 0 0 10px}
+.bell{width:26px;height:26px;display:grid;place-items:center;color:var(--mute);opacity:0;border:1px solid transparent}
+tr.ev:hover .bell{opacity:1}
+.bell:hover{color:var(--amber);border-color:var(--line2)}
+.bell svg{width:14px;height:14px}
+.bell.on,.bell.auto{opacity:1;color:var(--amber)}
+.bell.on svg{fill:var(--amber)}
+.c-time{width:70px}
+.c-cur{width:62px}
+.cur{display:inline-block;padding:2px 6px;border:1px solid var(--line2);font-size:11px;color:var(--cyan)}
+.c-imp{width:60px}
+.c-ev{max-width:0;overflow:hidden;text-overflow:ellipsis;font:500 13px var(--sans)}
+.c-ev .tag{font:600 9.5px var(--cond);letter-spacing:1.4px;color:var(--mute);border:1px solid var(--line2);padding:1px 5px;margin-left:8px;vertical-align:1px}
+.c-num{width:10%}
+.c-tm{width:11%}
+.arr{font-size:9px;margin-left:5px}
+.arr.up{color:var(--up)} .arr.down{color:var(--down)} .arr.flat{color:var(--mute)}
+td.act.better{color:var(--up)} td.act.worse{color:var(--down)}
+.muted{color:var(--mute)}
+.tm{font:500 12px var(--mono);color:var(--dim)}
+.tm.soon{color:var(--amber)}
+.tm.now{color:#000;background:var(--amber);padding:2px 6px;font-weight:700}
+.tm.out{color:var(--mute);letter-spacing:1px;font:600 12px var(--cond)}
+tr.ev.past td{opacity:.42}
+tr.ev.past td.act.better,tr.ev.past td.act.worse,tr.ev.past td.act:has(.src){opacity:1}
+tr.ev.past.open td{opacity:1}
+tr.ev.hi td.c-ev{color:#fff}
+tr.ev.next td{background:linear-gradient(90deg,rgba(255,176,0,.14),rgba(255,176,0,.03) 55%,transparent)}
+tr.ev.next td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+.bars{display:inline-flex;gap:2px;align-items:flex-end}
+.bars i{width:4px;background:var(--line2);display:block}
+.bars i:nth-child(1){height:6px}.bars i:nth-child(2){height:9px}.bars i:nth-child(3){height:12px}
+.bars.h i{background:var(--hi)}
+.bars.m i:nth-child(-n+2){background:var(--med)}
+.bars.l i:nth-child(1){background:var(--lo)}
+.bars.x i{background:var(--hol);height:4px}
+.empty{padding:70px 20px;text-align:center;color:var(--dim)}
+.empty h3{font:700 18px var(--cond);letter-spacing:2.5px;color:var(--text);margin-bottom:8px;text-transform:uppercase}
+.empty p{max-width:460px;margin:0 auto;line-height:1.6}
+
+/* expandable rows + detail panel */
+tr.ev{cursor:pointer}
+tr.ev.open td{background:#0E1520}
+tr.ev.open td:first-child{box-shadow:inset 3px 0 0 var(--cyan)}
+.c-ev .chev{display:inline-block;width:10px;margin-left:8px;color:var(--mute);font-size:10px;transition:transform .15s}
+tr.ev.open .c-ev .chev{transform:rotate(90deg);color:var(--cyan)}
+td.act .need{font:700 9px var(--cond);letter-spacing:1.2px;color:var(--amber);border:1px solid rgba(255,176,0,.45);padding:1px 5px;cursor:pointer;opacity:1}
+td.act .need:hover{background:var(--amberglow)}
+td.act .wait{color:var(--mute);font-size:11px;letter-spacing:1px}
+.status .fred{cursor:pointer}
+.status .fred.ok b{color:var(--up)} .status .fred.warn b{color:var(--amber)} .status .fred.bad b{color:var(--down)}
+tr.ev.past td.act:has(.need){opacity:1}
+td.act .src{font:600 8.5px var(--cond);letter-spacing:1px;color:var(--mute);margin-left:4px;vertical-align:2px}
+tr.det td{padding:0;background:#0A0F16;border-bottom:1px solid var(--line2);white-space:normal}
+.dp{display:grid;grid-template-columns:minmax(260px,1.25fr) 230px minmax(300px,1.3fr);gap:0;border-left:3px solid var(--cyan)}
+.dp>div{padding:16px 18px;border-right:1px solid var(--line)}
+.dp>div:last-child{border-right:0}
+.dp h3{font:700 16px var(--cond);letter-spacing:1.6px;text-transform:uppercase;color:#fff;margin-bottom:8px}
+.dp p{font:400 12.5px/1.55 var(--sans);color:var(--dim);margin-bottom:10px}
+.dp .why{border-left:2px solid var(--amber);padding:6px 10px;background:var(--panel);color:var(--text);font-size:12px}
+.dp .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font:500 11.5px var(--mono);color:var(--dim);margin-top:10px}
+.dp .meta b{color:var(--text);font-weight:500}
+.dp a.lk{color:var(--cyan);cursor:pointer;text-decoration:none}
+.dp a.lk:hover{text-decoration:underline}
+.nbox{display:flex;flex-direction:column;gap:10px}
+.nbox .big{font:600 30px/1 var(--mono);letter-spacing:-.5px}
+.nbox .big.better{color:var(--up)} .nbox .big.worse{color:var(--down)} .nbox .big.pend{color:var(--mute);font-size:18px}
+.nbox .lb{font:600 10.5px var(--cond);letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+.nbox .pair{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.nbox .pair div{background:var(--panel);border:1px solid var(--line);padding:7px 9px}
+.nbox .pair b{display:block;font:500 15px var(--mono);margin-top:3px}
+.verdict{font:700 11.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;padding:4px 8px;align-self:flex-start;border:1px solid var(--line2);color:var(--dim)}
+.verdict.better{color:var(--up);border-color:rgba(31,214,127,.4)} .verdict.worse{color:var(--down);border-color:rgba(255,77,87,.4)}
+.dacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.dacts button{height:30px;padding:0 11px;border:1px solid var(--line2);font:600 11.5px var(--cond);letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:6px}
+.dacts button:hover{color:var(--amber);border-color:var(--amber)}
+.dacts button.on{color:var(--amber);border-color:var(--amber);background:var(--amberglow)}
+.dacts svg{width:13px;height:13px}
+.chart h5{font:600 10.5px var(--cond);letter-spacing:2px;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between;margin-bottom:8px}
+.chart h5 span{color:var(--mute);letter-spacing:1px}
+.chart svg{width:100%;height:150px;display:block}
+.chart .msg{height:150px;display:grid;place-items:center;text-align:center;font:500 12px/1.6 var(--sans);color:var(--dim);border:1px dashed var(--line2);padding:12px}
+.chart .msg a{color:var(--amber);cursor:pointer}
+.chart .cred{font:500 10px var(--sans);color:var(--mute);margin-top:6px}
+.keyrow{display:flex;gap:6px;margin-top:6px}
+.keyrow input{flex:1;min-width:0;height:34px;background:var(--panel);border:1px solid var(--line2);padding:0 9px;font:500 12px var(--mono);outline:none}
+.keyrow input:focus{border-color:var(--amber)}
+.keyst{font:500 11.5px var(--mono);color:var(--mute);margin-top:6px}
+.keyst.ok{color:var(--up)} .keyst.bad{color:var(--down)}
+
+/* live */
+.frame{flex:1;min-height:0;padding:12px 14px;display:flex;flex-direction:column}
+.frame .card{flex:1;min-height:0;border:1px solid var(--line2);background:#fff}
+.frame iframe{width:100%;height:100%;border:0;display:block;background:#fff}
+.frame.dark .card{background:#0d0d0d}
+.frame.dark iframe{filter:invert(.91) hue-rotate(180deg) contrast(.92) saturate(1.2)}
+.credit{padding:7px 2px 0;font:500 11px var(--sans);color:var(--dim)}
+.credit a{color:var(--amber);font-weight:600;text-decoration:none}
+
+/* status bar */
+.status{display:flex;align-items:center;gap:18px;padding:0 14px;background:#07090D;border-top:1px solid var(--line);font:500 11px var(--mono);color:var(--mute);white-space:nowrap;overflow:hidden}
+.status b{color:var(--dim);font-weight:500}
+.status .r{margin-left:auto;display:flex;gap:14px}
+.status kbd{border:1px solid var(--line2);padding:0 4px;color:var(--dim);font:inherit}
+
+/* ---------- popover: alerts ---------- */
+.pop{position:fixed;top:56px;right:12px;width:400px;max-height:70vh;display:none;flex-direction:column;background:var(--panel2);border:1px solid var(--line2);box-shadow:0 18px 50px rgba(0,0,0,.65);z-index:60}
+.pop.open{display:flex}
+.pop header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+.pop h3{font:700 14px var(--cond);letter-spacing:2.2px;text-transform:uppercase}
+.pop h3 span{color:var(--amber)}
+.link{font:600 11px var(--cond);letter-spacing:1.6px;color:var(--dim);text-transform:uppercase;cursor:pointer}
+.link:hover{color:var(--amber)}
+.alist{overflow:auto}
+.ai{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line)}
+.ai .when{font:500 11.5px var(--mono);color:var(--dim);width:82px}
+.ai .t{font:500 12.5px var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai .t small{display:block;font:600 10px var(--cond);letter-spacing:1.4px;color:var(--mute)}
+.ai .cd{font:500 11.5px var(--mono);color:var(--amber)}
+.ai .rm{color:var(--mute);width:22px;height:22px;display:grid;place-items:center}
+.ai .rm:hover{color:var(--down)}
+.pop .foot{padding:10px 14px;font:500 11.5px var(--sans);color:var(--dim);line-height:1.5;border-top:1px solid var(--line)}
+.pop .none{padding:26px 16px;text-align:center;color:var(--dim);line-height:1.6}
+
+/* ---------- drawer: settings ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:.18s;z-index:70}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:390px;background:var(--bg2);border-left:1px solid var(--line2);transform:translateX(100%);transition:transform .2s ease;z-index:71;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer header{display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.drawer header h3{font:700 16px var(--cond);letter-spacing:2.5px;text-transform:uppercase}
+.drawer .body{flex:1;overflow:auto}
+.grp{padding:14px 18px;border-bottom:1px solid var(--line)}
+.grp h4{font:600 11.5px var(--cond);letter-spacing:2.2px;color:var(--amber);text-transform:uppercase;margin-bottom:10px}
+.fld{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 0}
+.fld label{color:var(--text);font-size:12.5px}
+.fld label small{display:block;color:var(--mute);font-size:11px;margin-top:2px}
+.fld select{background:var(--panel);border:1px solid var(--line2);padding:6px 8px;font:500 12px var(--mono);outline:none;min-width:150px}
+.fld select:focus{border-color:var(--amber)}
+.sw{position:relative;width:36px;height:19px;border:1px solid var(--line2);background:var(--panel);flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;background:var(--mute);transition:.15s}
+.sw.on{border-color:var(--amber)}
+.sw.on::after{left:19px;background:var(--amber)}
+.sw:disabled{opacity:.35;cursor:default}
+.note{margin-top:8px;padding:10px 12px;border-left:2px solid var(--amber);background:var(--panel);font:500 11.5px/1.55 var(--sans);color:var(--dim)}
+.note b{color:var(--text);font-weight:600}
+.wbtn{height:34px;padding:0 14px;border:1px solid var(--line2);font:600 12.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;color:var(--text)}
+.wbtn:hover{border-color:var(--amber);color:var(--amber)}
+.wbtn.danger:hover{border-color:var(--down);color:var(--down)}
+.about{font:500 11.5px/1.6 var(--sans);color:var(--dim)}
+
+/* ---------- alert banners ---------- */
+.banners{position:fixed;bottom:36px;right:16px;width:390px;display:flex;flex-direction:column;gap:10px;z-index:80}
+.bn{background:var(--panel2);border:1px solid var(--line2);border-left:4px solid var(--amber);box-shadow:0 16px 44px rgba(0,0,0,.7);padding:12px 14px;animation:slide .22s ease}
+.bn.rel{border-left-color:var(--up)}
+@keyframes slide{from{transform:translateY(20px);opacity:0}}
+.bn .h{display:flex;justify-content:space-between;align-items:center;font:700 12px var(--cond);letter-spacing:2px;color:var(--amber);text-transform:uppercase}
+.bn.rel .h{color:var(--up)}
+.bn .h button{color:var(--mute);font-size:15px;line-height:1}
+.bn .h button:hover{color:var(--text)}
+.bn .tt{font:600 15px var(--sans);margin:6px 0 4px;color:#fff}
+.bn .mm{font:500 12px var(--mono);color:var(--dim)}
+.bn .mm b{color:var(--text);font-weight:500}
+.bn .acts{display:flex;gap:8px;margin-top:10px}
+.bn .acts button{height:30px;padding:0 12px;font:700 12px var(--cond);letter-spacing:1.6px;text-transform:uppercase;border:1px solid var(--line2)}
+.bn .acts .go{background:var(--amber);border-color:var(--amber);color:#000}
+
+.toast{position:fixed;left:50%;bottom:38px;transform:translate(-50%,16px);background:var(--panel2);border:1px solid var(--amber);padding:9px 16px;font:600 12.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;opacity:0;transition:.2s;pointer-events:none;z-index:90}
+.toast.on{transform:translate(-50%,0);opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="top">
+    <div class="brand">
+      <div class="mark">MT</div>
+      <div>
+        <div class="name">Econ <span>Terminal</span></div>
+        <div class="ver" id="ver">US MACRO CALENDAR</div>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab on" data-view="terminal">Terminal</button>
+      <button class="tab" data-view="live">Live · Investing.com</button>
+    </nav>
+    <div class="mkt" id="mkt"><span class="dot"></span><span>NYSE</span></div>
+    <div class="clocks" id="clocks"></div>
+    <button class="ib" id="bellBtn" title="Alerts (A)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="badge" id="bellBadge">0</span>
+    </button>
+    <button class="ib" id="refreshBtn" title="Refresh (R)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
+    </button>
+    <button class="ib" id="gearBtn" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <!-- ===== TICKER ===== -->
+  <div class="ticker">
+    <div class="lbl">▶ HIGH IMPACT</div>
+    <div class="track"><div class="run" id="run"></div></div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="shell">
+  <aside class="side">
+    <div class="scroll">
+      <h4 class="term-only">Filters</h4>
+      <div class="sf term-only"><label>Range</label><div class="dd" id="ddRange"></div></div>
+      <div class="sf term-only"><label>Impact</label><div class="dd" id="ddImpact"></div></div>
+      <div class="sf term-only"><label>Currency</label><div class="dd" id="ddCur"></div></div>
+      <div class="sf term-only"><label>Category</label><div class="dd" id="ddCat"></div></div>
+      <div class="sf term-only"><label>Show</label><div class="dd" id="ddShow"></div></div>
+      <div class="sf term-only"><label>Search</label><div class="search"><span>›</span><input id="q" placeholder="CPI, FOMC, payrolls…  ( / )" spellcheck="false"></div></div>
+
+      <h4 class="live-only">Live widget</h4>
+      <div class="sf live-only"><label>Range</label><div class="dd" id="ddWCal"></div></div>
+      <div class="sf live-only"><label>Importance</label><div class="dd" id="ddWImp"></div></div>
+      <div class="sf live-only"><label>Theme</label><div class="dd" id="ddWTheme"></div></div>
+      <div class="sf live-only"><label>Window</label><button class="wbtn" id="popBtn" title="Open the widget in its own window">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>Pop out widget</button></div>
+    </div>
+    <div class="foot">
+      <div class="dirtyln" id="dirtyln">✓ Defaults saved</div>
+      <div class="btns">
+        <button class="primary" id="saveBtn" title="Save these filters as your defaults (Ctrl+S)">Save as default</button>
+        <button class="ghost" id="undoBtn" title="Go back to your saved defaults">Undo</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- TERMINAL -->
+    <section class="view on" id="view-terminal">
+      <div class="kpis">
+        <div class="kpi next"><h5>Next high impact</h5><div class="row"><div class="v" id="kNextT">--:--:--</div><div class="s" id="kNextN">—</div></div></div>
+        <div class="kpi"><h5>High impact · week</h5><div class="row"><div class="v" id="kHigh">0</div><div class="s" id="kHighS">—</div></div></div>
+        <div class="kpi click" id="kAlerts" title="Manage alerts"><h5>Alerts armed</h5><div class="row"><div class="v" id="kAl">0</div><div class="s" id="kAlS">—</div></div></div>
+        <div class="kpi"><h5><span class="dot" id="kDot"></span>Feed</h5><div class="row"><div class="v" id="kFeed">—</div><div class="s" id="kFeedS">—</div></div></div>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr>
+            <th class="c-bell"></th><th>Time</th><th>Cur</th><th>Impact</th><th>Event</th>
+            <th class="num">Actual</th><th class="num">Forecast</th><th class="num">Previous</th><th class="num">T-Minus</th>
+          </tr></thead>
+          <tbody id="tb"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- LIVE -->
+    <section class="view" id="view-live">
+      <div class="frame" id="frame">
+        <div class="card"><iframe id="ifr" title="Investing.com Economic Calendar" referrerpolicy="no-referrer"></iframe></div>
+        <div class="credit poweredBy"><span>Real Time Economic Calendar provided by <a href="https://www.investing.com/" rel="nofollow" target="_blank" class="underline_link" id="invLink">Investing.com</a>.</span></div>
+      </div>
+    </section>
+  </main>
+  </div>
+
+  <!-- ===== STATUS ===== -->
+  <footer class="status">
+    <span><b>DATA</b> Fair Economy weekly feed · Investing.com widget</span>
+    <span id="stUpd"></span>
+    <span class="fred" id="stFred" data-settings="1"></span>
+    <div class="r"><span><kbd>R</kbd> refresh</span><span><kbd>T</kbd>/<kbd>L</kbd> views</span><span><kbd>/</kbd> search</span><span><kbd>A</kbd> alerts</span><span><kbd>Ctrl+S</kbd> save</span></div>
+  </footer>
+</div>
+
+<!-- ===== ALERTS POPOVER ===== -->
+<div class="pop" id="alertPop">
+  <header><h3>Alerts · <span id="popCount">0</span></h3><a class="link" id="clearAlerts">Clear all</a></header>
+  <div class="alist" id="alist"></div>
+  <div class="foot">Hover any row and click its <b>bell</b> to arm it. Timing and sound live in <a class="link" id="popSettings">Settings</a>.</div>
+</div>
+
+<!-- ===== SETTINGS DRAWER ===== -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <header><h3>Settings</h3><button class="ib" id="closeDrawer" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+  <div class="body">
+    <div class="grp">
+      <h4>Alerts</h4>
+      <div class="fld"><label>Heads-up before release</label>
+        <select data-pref="alertLead"><option value="0">Off</option><option value="1">1 min</option><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option></select></div>
+      <div class="fld"><label>Alert at release</label><button class="sw" data-pref="alertAtRelease"></button></div>
+      <div class="fld"><label>Auto-alert every high-impact event<small>for the currencies in your filter</small></label><button class="sw" data-pref="alertAutoHigh"></button></div>
+      <div class="fld"><label>Sound</label><button class="sw" data-pref="alertSound"></button></div>
+      <div class="fld"><label>Desktop notifications<small id="nativeNote">pop up while this tab is in the background</small></label><button class="sw" data-pref="alertNative" id="nativeSw"></button></div>
+      <div class="fld"><span></span><button class="wbtn" id="testAlert">Send test alert</button></div>
+      <div class="fld"><label>Alert when the actual posts<small>from FRED, usually minutes after the release</small></label><button class="sw" data-pref="alertActual"></button></div>
+      <div class="note">Alerts work while this page is open in a tab. Browsers slow down background tabs, so an alert can arrive up to a minute late if the tab has been hidden for a while. Keep the tab open (it can sit behind other windows).</div>
+    </div>
+    <div class="grp">
+      <h4>Actuals &amp; history</h4>
+      <div class="about">Actual numbers and the history charts for the major US releases come from <b>FRED®</b>, the St. Louis Fed's economic database. FRED usually posts a number within a few minutes of the release; for the instant print, use the Live tab.</div>
+      <div class="keyst" id="fredSt" style="margin-top:8px"></div>
+    </div>
+    <div class="grp">
+      <h4>General</h4>
+      <div class="fld"><label>Time zone</label>
+        <select data-pref="timezone"><option value="America/New_York">New York (ET)</option><option value="America/Chicago">Chicago (CT)</option><option value="America/Denver">Denver (MT)</option><option value="America/Los_Angeles">Los Angeles (PT)</option><option value="Europe/London">London</option><option value="UTC">UTC</option></select></div>
+      <div class="fld"><label>Open on</label>
+        <select data-pref="view"><option value="terminal">Terminal</option><option value="live">Live · Investing.com</option></select></div>
+      <div class="fld"><label>Auto refresh feed</label>
+        <select data-pref="autoRefreshMin"><option value="0">Off</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">60 min</option></select></div>
+      <div class="fld"><label>Compact rows</label><button class="sw" data-pref="compact"></button></div>
+    </div>
+    <div class="grp">
+      <h4>Defaults</h4>
+      <div class="about">Everything on this panel saves automatically in this browser. Your filters save when you press <b>Save as default</b> at the bottom of the sidebar (or Ctrl+S).</div>
+      <div class="fld" style="margin-top:6px"><span></span><button class="wbtn danger" id="resetBtn">Reset to factory</button></div>
+    </div>
+    <div class="grp about">
+      <h4>About</h4>
+      <div id="aboutVer">MT Economic Calendar</div>
+      <div>Terminal data: Fair Economy public weekly feed. Live data: Investing.com widget. Not affiliated with either.</div>
+      <div style="margin-top:6px">This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis. By using this site you agree to the <a class="link" id="fredTerms2">FRED® API Terms of Use</a>.</div>
+      <div style="margin-top:6px">Privacy: this site has no accounts and collects nothing. Your settings and alerts are stored only in your own browser.</div>
+    </div>
+  </div>
+</aside>
+
+<div class="banners" id="banners"></div>
+<div class="toast" id="toast"></div>
+
+<script src="indicators.js"></script>
+<script>
+"use strict";
+/* ====================================================================== */
+/*  Constants                                                             */
+/* ====================================================================== */
+const CURRENCIES = ["USD","EUR","GBP","JPY","CAD","AUD","NZD","CHF","CNY"];
+const CATEGORIES = {
+  "Employment":   ["payroll","employment","unemployment","jobless","claims","jolts","adp","labor","earnings","job"],
+  "Inflation":    ["cpi","ppi","pce","price","inflation"],
+  "Growth":       ["gdp","industrial","production","durable","factory","ism","pmi","manufacturing","services","empire","philly","business","productivity","capacity"],
+  "Consumer":     ["consumer","sentiment","confidence","spending","income","retail","michigan"],
+  "Housing":      ["housing","home","building","permits","construction","mortgage","starts","nahb"],
+  "Fed":          ["fomc","fed","federal funds","powell","warsh","beige","minutes","speaks","rate"],
+  "Bonds":        ["auction","bond","note","bill","treasury","tips"],
+  "Energy/Trade": ["crude","oil","natural gas","trade balance","inventories","import","export","petroleum"]
+};
+const INVERSE = ["unemployment","jobless","claims","cpi","ppi","pce","inflation","price"];
+const CLOCKS = [["NEW YORK","America/New_York","home"],["CHICAGO","America/Chicago","cx"],["LONDON","Europe/London",""],["TOKYO","Asia/Tokyo","cx"]];
+const IMPACT_RANK = {High:3, Medium:2, Low:1, Holiday:0};
+const INVESTING_TZ = {"America/New_York":8};
+const FILTER_KEYS = ["range","impacts","currencies","categories","hidePast","hideSpeeches","widgetCalType","widgetImportance","widgetDark"];
+
+/* ====================================================================== */
+/*  State                                                                 */
+/* ====================================================================== */
+let S = null, SAVED = null, DEFAULTS = null;
+let EVENTS = [], FEED = {status:"—"};
+let ALERTS = {armed:{}, muted:[]};
+let NATIVE = false;
+let curView = "terminal";
+const EXP = new Set();              // expanded event keys
+const ACT = {};                     // event key -> {v, at}  actuals from FRED
+const FREDC = {};                   // "series|units" -> {t, r}
+let FRED_STATE = "none";            // none | ok | bad
+let FRED_ERR = "";
+let autoTimer = null;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- backend: the site's own /api plus browser storage ---------- */
+const APP_VERSION = "3.0.0";
+const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
+const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
+let SCHEDULE = [];
+const FIRED = LS.get("mtec_fired", {});
+async function getJSON(url){
+  const r = await fetch(url, {cache:"no-cache"});
+  let j = null; try { j = await r.json(); } catch(e){}
+  if (!j) throw new Error(`HTTP ${r.status}`);
+  return j;
+}
+const Backend = {
+  async getSettings(){
+    const d = fallbackDefaults();
+    return {settings:Object.assign({}, d, LS.get("mtec",{})), defaults:d, version:APP_VERSION, alerts:LS.get("mtec_alerts",{armed:{},muted:[]})};
+  },
+  async save(s){ LS.set("mtec", s); },
+  async reset(){ LS.set("mtec", {}); return {settings:fallbackDefaults()}; },
+  async saveAlerts(a){ LS.set("mtec_alerts", a); },
+  async sync(items){ SCHEDULE = items; },
+  async testAlert(){ fireAlert({key:"test-" + Date.now(), title:"Test Alert", country:"USD", forecast:"0.3%", previous:"0.2%", date:new Date().toISOString()}, "release", true); },
+  async calendar(){
+    if (LOCAL_FILE) return {events:demoEvents(), fetched_at:Date.now()/1000, status:"demo", error:"Preview mode (sample data)"};
+    try { return await getJSON("/api/calendar"); }
+    catch(e){ return {events:[], fetched_at:null, status:"offline", error:"Could not reach the calendar: " + e.message}; }
+  },
+  async open(u){ window.open(u, "_blank", "noopener"); },
+  async fred(s, u){
+    if (LOCAL_FILE) return {ok:false, error:"Actuals load on the live site"};
+    try { return await getJSON(`/api/fred?s=${encodeURIComponent(s)}&u=${encodeURIComponent(u)}`); }
+    catch(e){ return {ok:false, error:e.message}; }
+  },
+  async alertActual(item){ fireAlert(item, "actual"); },
+  async popout(u){ window.open(u, "mtlive", "width=980,height=920"); }
+};
+function fallbackDefaults(){
+  return {view:"terminal",timezone:"America/New_York",currencies:["USD"],impacts:["High","Medium","Holiday"],
+    range:"week",categories:[],hidePast:false,hideSpeeches:false,compact:false,autoRefreshMin:15,onTop:false,
+    widgetCalType:"week",widgetImportance:[1,2,3],widgetDark:true,
+    alertLead:5,alertAtRelease:true,alertAutoHigh:false,alertSound:true,alertNative:false,alertActual:true};
+}
+
+/* ====================================================================== */
+/*  Time + number helpers                                                 */
+/* ====================================================================== */
+const fmtCache = {};
+function fmt(tz, o){ const k = tz + JSON.stringify(o); return fmtCache[k] || (fmtCache[k] = new Intl.DateTimeFormat("en-US", Object.assign({timeZone:tz}, o))); }
+function dayKey(d, tz){ const p = fmt(tz,{year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d); const g=t=>p.find(x=>x.type===t).value; return `${g("year")}-${g("month")}-${g("day")}`; }
+function hhmm(d, tz){ return fmt(tz,{hour:"2-digit",minute:"2-digit",hour12:false}).format(d).replace(/^24/,"00"); }
+function wd(d, tz){ return fmt(tz,{weekday:"short"}).format(d).toUpperCase(); }
+function dayLabel(d, tz){ return fmt(tz,{weekday:"long",day:"2-digit",month:"short"}).format(d).toUpperCase(); }
+function addDays(key, n){ const [y,m,dd] = key.split("-").map(Number); return new Date(Date.UTC(y,m-1,dd+n)).toISOString().slice(0,10); }
+function tzAbbr(tz){ const p = fmt(tz,{timeZoneName:"short"}).formatToParts(new Date()); return (p.find(x=>x.type==="timeZoneName")||{}).value || ""; }
+function countdown(ms){
+  if (ms <= 0) return "00:00:00";
+  const s = Math.floor(ms/1000), d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60), x = s%60;
+  const p = n => String(n).padStart(2,"0");
+  return d > 0 ? `${d}D ${p(h)}H ${p(m)}M` : `${p(h)}:${p(m)}:${p(x)}`;
+}
+function num(v){
+  const m = String(v ?? "").trim().replace(/,/g,"").match(/^([<>]?)(-?\d*\.?\d+)\s*([KMBT%]?)/i);
+  if (!m) return null;
+  return parseFloat(m[2]) * ({K:1e3,M:1e6,B:1e9,T:1e12}[m[3].toUpperCase()] || 1);
+}
+const isInverse = t => INVERSE.some(k => t.toLowerCase().includes(k));
+const isSpeech = t => /speaks|testif|press conference|remarks/i.test(t);
+const evKey = e => `${e.country}|${e.title}|${e.date}`;
+
+/* ====================================================================== */
+/*  Dropdown (multi-select)                                               */
+/* ====================================================================== */
+const DROPS = {};
+function makeDrop(id, cfg){
+  const root = document.getElementById(id);
+  root.innerHTML = `<button class="ddb"><span class="val"></span>
+    <svg class="car" viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <div class="ddp">${cfg.single || cfg.actions === false ? "" : `<div class="acts"><a data-a="all">All</a>${cfg.noneLabel ? `<a data-a="none">${cfg.noneLabel}</a>` : ""}</div>`}
+    ${cfg.options.map(o => `<button class="opt${cfg.single ? " radio" : ""}" data-v="${esc(o.v)}"><span class="cb"></span>${o.html || esc(o.v)}</button>`).join("")}</div>`;
+  root.querySelector(".ddb").onclick = e => { e.stopPropagation(); const open = !root.classList.contains("open"); closeDrops(); toggleAlertsPop(false); root.classList.toggle("open", open); };
+  root.querySelector(".ddp").onclick = e => {
+    e.stopPropagation();
+    const a = e.target.closest("[data-a]"), o = e.target.closest(".opt");
+    if (a) change(() => cfg.set(a.dataset.a === "all" ? cfg.options.map(x => x.v) : []));
+    else if (o && cfg.single){ change(() => cfg.set([o.dataset.v])); closeDrops(); }
+    else if (o){
+      const cur = cfg.get().map(String), v = o.dataset.v;
+      const next = cur.includes(v) ? cur.filter(x => x !== v) : cur.concat(v);
+      change(() => cfg.set(cfg.options.map(x => x.v).filter(x => next.includes(String(x)))));
+    }
+  };
+  DROPS[id] = {root, cfg};
+}
+function syncDrop(id){
+  const {root, cfg} = DROPS[id];
+  const sel = cfg.get().map(String);
+  root.querySelectorAll(".opt").forEach(o => o.classList.toggle("on", sel.includes(o.dataset.v)));
+  const v = root.querySelector(".val");
+  v.textContent = cfg.summary(sel);
+  v.classList.toggle("f", !cfg.isDefault(sel));
+}
+function closeDrops(){ $$(".dd.open").forEach(d => d.classList.remove("open")); }
+
+function buildDrops(){
+  const bars = c => `<span class="bars ${c}"><i></i><i></i><i></i></span>`;
+  const D = () => DEFAULTS || fallbackDefaults();
+  const RANGES = {today:"Today", tomorrow:"Tomorrow", week:"This week", upcoming:"Upcoming only"};
+  makeDrop("ddRange", {
+    single:true, options:Object.keys(RANGES).map(v => ({v, html:RANGES[v]})),
+    get:() => [S.range], set:v => S.range = v[0],
+    summary:s => RANGES[s[0]], isDefault:s => s[0] === D().range
+  });
+  makeDrop("ddWCal", {
+    single:true, options:[{v:"day",html:"Today"},{v:"week",html:"This week"}],
+    get:() => [S.widgetCalType], set:v => S.widgetCalType = v[0],
+    summary:s => s[0] === "day" ? "Today" : "This week", isDefault:s => s[0] === D().widgetCalType
+  });
+  makeDrop("ddWTheme", {
+    single:true, options:[{v:"dark",html:"Dark (matches the app)"},{v:"light",html:"Light (original)"}],
+    get:() => [S.widgetDark ? "dark" : "light"], set:v => S.widgetDark = v[0] === "dark",
+    summary:s => s[0] === "dark" ? "Dark" : "Light", isDefault:s => (s[0] === "dark") === !!D().widgetDark
+  });
+  makeDrop("ddImpact", {
+    noneLabel:"High only",
+    options:[{v:"High",html:bars("h")+"High"},{v:"Medium",html:bars("m")+"Medium"},{v:"Low",html:bars("l")+"Low"},{v:"Holiday",html:bars("x")+"Holiday"}],
+    get:() => S.impacts, set:v => S.impacts = v.length ? v : ["High"],
+    summary:s => s.length === 4 ? "All levels" : s.map(x => ({High:"High",Medium:"Medium",Low:"Low",Holiday:"Holiday"})[x]).join(" · "),
+    isDefault:s => JSON.stringify(s) === JSON.stringify((DEFAULTS || fallbackDefaults()).impacts)
+  });
+  makeDrop("ddCur", {
+    noneLabel:"USD only",
+    options:CURRENCIES.map(c => ({v:c})),
+    get:() => S.currencies, set:v => S.currencies = v.length ? v : ["USD"],
+    summary:s => s.length === CURRENCIES.length ? "All currencies" : s.length <= 3 ? s.join(" · ") : `${s[0]} +${s.length-1}`,
+    isDefault:s => s.length === 1 && s[0] === "USD"
+  });
+  makeDrop("ddCat", {
+    noneLabel:"Clear",
+    options:Object.keys(CATEGORIES).map(c => ({v:c})),
+    get:() => S.categories, set:v => S.categories = v.length === Object.keys(CATEGORIES).length ? [] : v,
+    summary:s => !s.length ? "All categories" : s.length <= 2 ? s.join(" · ") : `${s.length} categories`,
+    isDefault:s => !s.length
+  });
+  makeDrop("ddShow", {
+    actions:false,
+    options:[{v:"released",html:"Released events"},{v:"speeches",html:"Fed speeches"}],
+    get:() => [!S.hidePast && "released", !S.hideSpeeches && "speeches"].filter(Boolean),
+    set:v => { S.hidePast = !v.includes("released"); S.hideSpeeches = !v.includes("speeches"); },
+    summary:s => s.length === 2 ? "All events" : s.length === 0 ? "Upcoming data only" : s[0] === "released" ? "No speeches" : "Upcoming only",
+    isDefault:s => s.length === 2
+  });
+  makeDrop("ddWImp", {
+    noneLabel:"High only",
+    options:[{v:"3",html:bars("h")+"High"},{v:"2",html:bars("m")+"Medium"},{v:"1",html:bars("l")+"Low"}],
+    get:() => S.widgetImportance.map(String), set:v => S.widgetImportance = (v.length ? v : ["3"]).map(Number).sort(),
+    summary:s => s.length === 3 ? "All levels" : s.slice().sort().reverse().map(x => ({3:"High",2:"Med",1:"Low"})[x]).join(" · "),
+    isDefault:s => s.length === 3
+  });
+}
+
+/* ====================================================================== */
+/*  Filtering + table                                                     */
+/* ====================================================================== */
+const catOf = t => { t = t.toLowerCase(); return Object.keys(CATEGORIES).filter(c => CATEGORIES[c].some(k => t.includes(k))); };
+function filtered(){
+  const tz = S.timezone, now = Date.now(), today = dayKey(new Date(), tz), tmrw = addDays(today, 1);
+  const q = $("#q").value.trim().toLowerCase();
+  return EVENTS.filter(e => {
+    if (!S.currencies.includes(e.country)) return false;
+    if (!S.impacts.includes(e.impact)) return false;
+    const k = dayKey(e._d, tz);
+    if (S.range === "today" && k !== today) return false;
+    if (S.range === "tomorrow" && k !== tmrw) return false;
+    if (S.range === "upcoming" && e._d.getTime() < now - 3600e3) return false;
+    if (S.hidePast && e._d.getTime() < now - 120e3) return false;
+    if (S.hideSpeeches && isSpeech(e.title)) return false;
+    if (S.categories.length && !catOf(e.title).some(c => S.categories.includes(c))) return false;
+    if (q && !e.title.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+const BELL = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`;
+function impBars(imp){ return `<span class="bars ${({High:"h",Medium:"m",Low:"l",Holiday:"x"})[imp]||"l"}" title="${esc(imp)}"><i></i><i></i><i></i></span>`; }
+function fcCell(e){
+  if (!e.forecast) return `<span class="muted">—</span>`;
+  const f = num(e.forecast), p = num(e.previous);
+  const arr = f === null || p === null ? "" : f > p ? `<span class="arr up">▲</span>` : f < p ? `<span class="arr down">▼</span>` : `<span class="arr flat">■</span>`;
+  return esc(e.forecast) + arr;
+}
+const actualOf = e => e.actual || (ACT[e._k] && ACT[e._k].v) || "";
+function verdictOf(e){
+  const a = num(actualOf(e)), f = num(e.forecast);
+  if (a === null || f === null) return null;
+  if (a === f) return {cls:"", txt:"In line with forecast"};
+  const good = isInverse(e.title) ? a < f : a > f;
+  return {cls: good ? "better" : "worse", txt: (a > f ? "Above" : "Below") + " forecast"};
+}
+function actClass(e){
+  const a = num(actualOf(e)), f = num(e.forecast);
+  if (a === null || f === null || a === f) return "";
+  return (isInverse(e.title) ? a < f : a > f) ? "better" : "worse";
+}
+function renderTable(){
+  const tz = S.timezone, now = Date.now(), today = dayKey(new Date(), tz);
+  const rows = filtered();
+  const nextIdx = rows.findIndex(e => e._d.getTime() >= now - 60e3);
+  if (!rows.length){
+    $("#tb").innerHTML = `<tr><td colspan="9"><div class="empty"><h3>${EVENTS.length ? "No events match" : "No data"}</h3><p>${EVENTS.length
+      ? "Nothing on the calendar for this filter set. Widen the range or loosen the Impact, Category or Show filters."
+      : esc(FEED.error ? "Could not reach the calendar feed: " + FEED.error : "Loading the calendar feed…")}</p></div></td></tr>`;
+    return rows;
+  }
+  const meta = {};
+  rows.forEach(e => { const k = dayKey(e._d,tz); (meta[k] ||= {n:0,h:0}); meta[k].n++; if (e.impact === "High") meta[k].h++; });
+  let html = "", last = "";
+  rows.forEach((e, i) => {
+    const k = dayKey(e._d, tz);
+    if (k !== last){
+      last = k;
+      html += `<tr class="day ${k===today?"today":""}"><td colspan="9">${dayLabel(e._d,tz)}${k===today?" · TODAY":""}<span class="meta">${meta[k].n} EVENTS · <b>${meta[k].h} HIGH</b></span></td></tr>`;
+    }
+    const t = e._d.getTime(), diff = t - now, past = diff < -60e3;
+    const allDay = /T00:00:00/.test(e.date) && (e.impact === "Holiday" || !e.forecast);
+    const st = alertState(e);
+    const bell = past ? "" : `<button class="bell ${st}" data-k="${esc(e._k)}" title="${st === "auto" ? "Auto alert (high impact) · click to mute" : st ? "Alert armed · click to remove" : "Alert me"}">${BELL}</button>`;
+    const tm = past ? `<span class="tm out">RELEASED</span>` : diff < 60e3 ? `<span class="tm now">LIVE</span>` : `<span class="tm ${diff < 3600e3 ? "soon" : ""}" data-t="${t}">${countdown(diff)}</span>`;
+    const open = EXP.has(e._k), av = actualOf(e), Ix = indicatorFor(e);
+    const mapped = !!(Ix && Ix.f), relNow = now >= t + 20e3;
+    const noAct = !mapped || !relNow ? '<span class="muted">—</span>'
+      : !hasFred() ? '<span class="muted">—</span>'
+      : '<span class="wait" title="Waiting for FRED to post this number">…</span>';
+    html += `<tr class="ev ${past?"past":""} ${i===nextIdx?"next":""} ${e.impact==="High"?"hi":""} ${open?"open":""}" data-k="${esc(e._k)}">
+      <td class="c-bell">${bell}</td>
+      <td class="c-time">${allDay ? "ALL DAY" : hhmm(e._d,tz)}</td>
+      <td class="c-cur"><span class="cur">${esc(e.country)}</span></td>
+      <td class="c-imp">${impBars(e.impact)}</td>
+      <td class="c-ev" title="${esc(e.title)}">${esc(e.title)}${isSpeech(e.title)?'<span class="tag">SPEECH</span>':""}${e.impact==="Holiday"?'<span class="tag">HOLIDAY</span>':""}<span class="chev">▶</span></td>
+      <td class="num c-num act ${actClass(e)}">${av ? esc(av) + (!e.actual ? '<span class="src" title="Actual from FRED">FRED</span>' : "") : noAct}</td>
+      <td class="num c-num">${fcCell(e)}</td>
+      <td class="num c-num">${e.previous ? esc(e.previous) : '<span class="muted">—</span>'}</td>
+      <td class="num c-tm">${tm}</td></tr>`;
+    if (open) html += `<tr class="det"><td colspan="9">${detailHTML(e)}</td></tr>`;
+  });
+  $("#tb").innerHTML = html;
+  fillCharts();
+  return rows;
+}
+
+/* ====================================================================== */
+/*  Detail panel                                                          */
+/* ====================================================================== */
+const fmtF = (f, v) => { const n = v * (f.scale || 1); return (f.dec === 0 ? Math.round(n).toLocaleString("en-US") : n.toFixed(f.dec)) + (f.suf || ""); };
+const hasFred = () => !LOCAL_FILE && FRED_STATE !== "off";
+function detailHTML(e){
+  const I = indicatorFor(e) || GENERIC, tz = S.timezone, now = Date.now(), t = e._d.getTime();
+  const av = actualOf(e), vd = verdictOf(e), st = alertState(e), released = now >= t;
+  let big;
+  if (av) big = `<div class="big ${vd ? vd.cls : ""}">${esc(av)}</div>`;
+  else if (!released) big = `<div class="big pend">Due in ${countdown(t - now)}</div>`;
+  else if (I.f && hasFred()) big = `<div class="big pend">Waiting for FRED…</div>`;
+  else big = `<div class="big pend">Not in feed</div>`;
+  const f = num(e.forecast), p = num(e.previous);
+  const exp = f !== null && p !== null ? (f > p ? "Expected to rise" : f < p ? "Expected to fall" : "Expected unchanged") : "";
+  const cat = catOf(e.title).join(" · ");
+  return `<div class="dp">
+    <div>
+      <h3>${esc(I.name === GENERIC.name ? e.title : I.name)}</h3>
+      <p>${esc(I.what)}</p>
+      <div class="why">${esc(I.why)}</div>
+      <div class="meta">
+        <span>${wd(e._d,tz)} <b>${hhmm(e._d,tz)}</b> ${tzAbbr(tz)}</span>
+        <span>Impact <b>${esc(e.impact)}</b></span>
+        ${cat ? `<span>${esc(cat)}</span>` : ""}
+        ${I.src ? `<span>Source <b>${esc(I.src)}</b></span>` : ""}
+        ${I.url ? `<a class="lk" data-open="${esc(I.url)}">Official release ↗</a>` : ""}
+      </div>
+    </div>
+    <div class="nbox">
+      <span class="lb">Actual</span>${big}
+      ${vd ? `<span class="verdict ${vd.cls}">${vd.txt}</span>` : ""}
+      <div class="pair"><div><span class="lb">Forecast</span><b>${esc(e.forecast || "—")}</b></div><div><span class="lb">Previous</span><b>${esc(e.previous || "—")}</b></div></div>
+      ${exp ? `<span class="lb" style="letter-spacing:1.4px">${exp}</span>` : ""}
+      <div class="dacts">
+        ${released ? "" : `<button data-bell="${esc(e._k)}" class="${st ? "on" : ""}">${BELL}${st ? "Alert armed" : "Alert me"}</button>`}
+        <button data-live="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>Live tab</button>
+      </div>
+    </div>
+    <div class="chart" data-chart="${esc(e._k)}">${chartShell(e, I)}</div>
+  </div>`;
+}
+function chartShell(e, I){
+  if (!I.f && !e.forecast && !e.previous) return `<h5>History</h5><div class="msg">No number is released for this event.<br>Watch the headlines (or the Live tab) for the reaction.</div>`;
+  if (!I.f) return `<h5>History</h5><div class="msg">${I.src ? esc(I.src) + " data is licensed, so there's no free history feed for it." : "No free history feed for this event."}<br>Use the Live tab for Investing.com's chart.</div>`;
+  if (!hasFred()) return `<h5>History</h5><div class="msg">${LOCAL_FILE ? "History charts load on the live site." : "History is unavailable right now."}</div>`;
+  return `<h5>History</h5><div class="msg">Loading from FRED…</div>`;
+}
+async function fredFor(f, force){
+  const k = f.s + "|" + f.u, c = FREDC[k];
+  if (c && !force && Date.now() - c.t < 10*60e3) return c.r;
+  const r = await Backend.fred(f.s, f.u, 30);
+  FREDC[k] = {t: Date.now(), r};
+  if (r && r.ok){ FRED_STATE = "ok"; FRED_ERR = ""; }
+  else if (r){ FRED_ERR = r.error || "FRED error"; if (/not set up/i.test(FRED_ERR)) FRED_STATE = "off"; }
+  renderFredStatus();
+  return r;
+}
+async function fillCharts(){
+  for (const box of $$("[data-chart]")){
+    const e = EVENTS.find(x => x._k === box.dataset.chart), I = e && indicatorFor(e);
+    if (!I || !I.f || !hasFred() || box.dataset.done) continue;
+    box.dataset.done = "1";
+    const r = await fredFor(I.f);
+    if (!document.body.contains(box)) continue;
+    box.innerHTML = r && r.ok && r.obs.length > 1 ? chartSVG(r, I.f) : `<h5>History</h5><div class="msg">${esc((r && r.error) || "No data")}</div>`;
+  }
+}
+function chartSVG(r, f){
+  const pts = r.obs.slice(0, 24).reverse().map(o => ({d:o.date, v:+o.value * (f.scale || 1)}));
+  const W = 600, H = 150, L = 6, R = 64, T = 10, B = 22, n = pts.length, vals = pts.map(p => p.v);
+  const change = ["chg","pch","pc1"].includes(f.u) || Math.min(...vals) < 0;
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (change){ lo = Math.min(lo, 0); hi = Math.max(hi, 0); } else { const pad = (hi - lo) * .15 || Math.abs(hi) * .05 || 1; lo -= pad; hi += pad; }
+  if (hi === lo) hi = lo + 1;
+  const y = v => T + (hi - v) / (hi - lo) * (H - T - B), cw = (W - L - R) / n;
+  const lab = v => fmtF(Object.assign({}, f, {scale:1}), v);
+  const mon = d => { const [Y,M] = d.split("-"); return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+M-1] + " " + Y.slice(2); };
+  let g = "";
+  if (change){
+    const z = y(0);
+    g += `<line x1="${L}" x2="${W-R}" y1="${z}" y2="${z}" stroke="#2A3646"/>`;
+    pts.forEach((p, i) => { const x = L + i*cw + cw*.18, top = Math.min(y(p.v), z), h = Math.max(Math.abs(y(p.v) - z), 1), last = i === n-1;
+      g += `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${(cw*.64).toFixed(1)}" height="${h.toFixed(1)}" fill="${last ? "#FFB000" : p.v < 0 ? "#5A2A33" : "#2E4A63"}"><title>${mon(p.d)}: ${lab(p.v)}</title></rect>`; });
+  } else {
+    const xy = pts.map((p, i) => [L + i*cw + cw/2, y(p.v)]);
+    g += `<path d="M${xy.map(q => q.map(v => v.toFixed(1)).join(",")).join("L")}L${xy[n-1][0].toFixed(1)},${H-B}L${xy[0][0].toFixed(1)},${H-B}Z" fill="rgba(255,176,0,.08)"/>`;
+    g += `<polyline points="${xy.map(q => q.map(v => v.toFixed(1)).join(",")).join(" ")}" fill="none" stroke="#FFB000" stroke-width="1.8"/>`;
+    xy.forEach((q, i) => g += `<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${i === n-1 ? 4 : 7}" fill="${i === n-1 ? "#FFB000" : "transparent"}"><title>${mon(pts[i].d)}: ${lab(pts[i].v)}</title></circle>`);
+  }
+  const last = pts[n-1];
+  g += `<text x="${W-R+8}" y="${(y(last.v)+4).toFixed(1)}" fill="#FFB000" font-size="12" font-family="JetBrains Mono,monospace" font-weight="600">${lab(last.v)}</text>`;
+  g += `<text x="${W-R+8}" y="${T+8}" fill="#4A5666" font-size="10" font-family="JetBrains Mono,monospace">${lab(Math.max(...vals))}</text>`;
+  g += `<text x="${W-R+8}" y="${H-B}" fill="#4A5666" font-size="10" font-family="JetBrains Mono,monospace">${lab(Math.min(...vals))}</text>`;
+  g += `<text x="${L}" y="${H-6}" fill="#4A5666" font-size="10" font-family="JetBrains Mono,monospace">${mon(pts[0].d)}</text>`;
+  g += `<text x="${W-R}" y="${H-6}" fill="#4A5666" font-size="10" font-family="JetBrains Mono,monospace" text-anchor="end">${mon(last.d)}</text>`;
+  return `<h5>Last ${n} releases<span>${esc(r.frequency || "")} · ${esc(f.s)}</span></h5><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${g}</svg>
+    <div class="cred">Source: ${esc(r.title || f.s)} via FRED®, Federal Reserve Bank of St. Louis.</div>`;
+}
+
+/* ---------- actuals from FRED ---------- */
+let pollBusy = false;
+async function pollActuals(){
+  if (!hasFred() || pollBusy || !EVENTS.length) return;
+  pollBusy = true;
+  try {
+    const now = Date.now(), bySeries = {};
+    EVENTS.forEach(e => {
+      const I = indicatorFor(e), t = e._d.getTime();
+      if (!I || !I.f || e.actual || ACT[e._k] || now < t + 20e3 || now - t > 8*86400e3) return;
+      (bySeries[I.f.s + "|" + I.f.u] ||= {f:I.f, evs:[]}).evs.push(e);
+    });
+    let changed = false;
+    for (const {f, evs} of Object.values(bySeries)){
+      const fresh = evs.some(e => now - e._d.getTime() < 3*3600e3);       // just released: re-check every minute
+      const r = await fredFor(f, fresh && (!FREDC[f.s+"|"+f.u] || now - FREDC[f.s+"|"+f.u].t > 55e3));
+      if (!r || !r.ok || !r.obs.length || !r.updated) continue;
+      FRED_STATE = "ok";
+      evs.forEach(e => {
+        // only trust the newest value if FRED updated the series after this event's release time
+        if (r.updated * 1000 >= e._d.getTime() - 60e3){
+          ACT[e._k] = {v: fmtF(f, +r.obs[0].value), at: now};
+          changed = true;
+          onActual(e);
+        }
+      });
+    }
+    if (changed || FRED_STATE === "off") renderAll();
+  } finally { pollBusy = false; }
+}
+function onActual(e){
+  if (!S.alertActual || Date.now() - e._d.getTime() > 3*3600e3) return;
+  if (!schedule().some(a => a.key === e._k)) return;
+  const vd = verdictOf(e);
+  Backend.alertActual({key:e._k, title:e.title, country:e.country, date:e.date, forecast:e.forecast, previous:e.previous,
+    actual: actualOf(e), verdict: vd ? vd.txt : "", cls: vd ? vd.cls : ""});
+}
+
+/* ====================================================================== */
+/*  Alerts                                                                */
+/* ====================================================================== */
+const autoEligible = e => S.alertAutoHigh && e.impact === "High" && S.currencies.includes(e.country) && !ALERTS.muted.includes(e._k);
+function alertState(e){ return ALERTS.armed[e._k] ? "on" : autoEligible(e) ? "auto" : ""; }
+function toggleAlert(k){
+  const e = EVENTS.find(x => x._k === k);
+  if (!e){ delete ALERTS.armed[k]; Backend.saveAlerts(ALERTS); syncSchedule(); renderAll(); return; }
+  const st = alertState(e);
+  if (st === "on") delete ALERTS.armed[k];
+  else if (st === "auto") ALERTS.muted.push(k);
+  else {
+    ALERTS.muted = ALERTS.muted.filter(x => x !== k);
+    if (!autoEligible(e)) ALERTS.armed[k] = {title:e.title, country:e.country, date:e.date, impact:e.impact, forecast:e.forecast, previous:e.previous};
+  }
+  Backend.saveAlerts(ALERTS);
+  toast(alertState(e) ? "Alert armed · " + e.title : "Alert removed");
+  syncSchedule(); renderAll();
+}
+function schedule(){
+  const now = Date.now(), map = {};
+  Object.entries(ALERTS.armed).forEach(([k, a]) => {
+    const live = EVENTS.find(e => e._k === k);   // use the latest forecast/previous
+    map[k] = Object.assign({key:k}, a, live ? {forecast:live.forecast, previous:live.previous} : {});
+  });
+  EVENTS.forEach(e => { if (autoEligible(e) && !map[e._k]) map[e._k] = {key:e._k, title:e.title, country:e.country, date:e.date, impact:e.impact, forecast:e.forecast, previous:e.previous}; });
+  return Object.values(map).filter(a => new Date(a.date).getTime() > now - 3*3600e3).sort((a,b) => new Date(a.date) - new Date(b.date));
+}
+function syncSchedule(){ Backend.sync(schedule()); }
+function pruneAlerts(){
+  const cutoff = Date.now() - 2*86400e3;
+  let changed = false;
+  Object.keys(ALERTS.armed).forEach(k => { if (new Date(ALERTS.armed[k].date).getTime() < cutoff){ delete ALERTS.armed[k]; changed = true; } });
+  if (EVENTS.length){
+    const keys = new Set(EVENTS.map(e => e._k));
+    const m = ALERTS.muted.filter(k => keys.has(k));
+    if (m.length !== ALERTS.muted.length){ ALERTS.muted = m; changed = true; }
+  }
+  if (changed) Backend.saveAlerts(ALERTS);
+}
+function renderAlertsPop(){
+  const tz = S.timezone, now = Date.now(), list = schedule().filter(a => new Date(a.date).getTime() > now - 60e3);
+  $("#popCount").textContent = list.length;
+  $("#alist").innerHTML = list.length ? list.map(a => { const d = new Date(a.date); return `<div class="ai">
+      <span class="when">${wd(d,tz)} ${hhmm(d,tz)}</span>
+      <span class="t">${esc(a.title)}<small>${esc(a.country)} · ${ALERTS.armed[a.key] ? "MANUAL" : "AUTO · HIGH IMPACT"}</small></span>
+      <span class="cd" data-t="${d.getTime()}">${countdown(d.getTime() - now)}</span>
+      <button class="rm" data-k="${esc(a.key)}" title="Remove">✕</button></div>`; }).join("")
+    : `<div class="none">No alerts armed.<br>Hover any row and click its bell, or turn on <b>Auto-alert every high-impact event</b> in Settings.</div>`;
+}
+window.onAlert = function(p){
+  const tz = S.timezone, rel = p.stage === "release" || p.stage === "actual", isAct = p.stage === "actual";
+  const when = p.date ? hhmm(new Date(p.date), tz) : "";
+  const el = document.createElement("div");
+  el.className = "bn" + (rel ? " rel" : "");
+  el.innerHTML = `<div class="h"><span>${isAct ? "● Actual is out" : rel ? "● Released now" : `▲ In ${p.lead} min · ${when}`}</span><button title="Dismiss">✕</button></div>
+    <div class="tt">${esc(p.country)} ${esc(p.title)}${isAct ? ` <span style="color:${p.cls === "better" ? "var(--up)" : p.cls === "worse" ? "var(--down)" : "var(--amber)"};font-family:var(--mono)">${esc(p.actual)}</span>` : ""}</div>
+    <div class="mm">Forecast <b>${esc(p.forecast || "—")}</b> · Previous <b>${esc(p.previous || "—")}</b></div>
+    ${isAct && p.verdict ? `<div class="mm" style="margin-top:4px">${esc(p.verdict)}</div>` : ""}
+    <div class="acts">${rel && !isAct ? `<button class="go">${hasFred() ? "Live tab" : "View actual"}</button>` : ""}<button class="dis">Dismiss</button></div>`;
+  const kill = () => el.remove();
+  el.querySelector(".h button").onclick = kill;
+  el.querySelector(".dis").onclick = kill;
+  const go = el.querySelector(".go");
+  if (go) go.onclick = () => { kill(); setView("live"); renderLive(true); };
+  $("#banners").prepend(el);
+  while ($("#banners").children.length > 4) $("#banners").lastChild.remove();
+  if (!rel) setTimeout(kill, 60e3);
+  if (p.beep) beep(rel);
+};
+function beep(rel){
+  try {
+    const c = AUDIO || (AUDIO = new (window.AudioContext || window.webkitAudioContext)());
+    (rel ? [880,1320,1760] : [880,1100]).forEach((f, i) => {
+      const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + i*.17;
+      o.type = "square"; o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.07, t+.01); g.gain.exponentialRampToValueAtTime(.0001, t+.15);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t+.16);
+    });
+  } catch(e){}
+}
+/* alert engine: runs in the page (browsers slow background tabs to about once a minute) */
+function fireAlert(a, stage, force){
+  const k = a.key + "|" + stage;
+  if (FIRED[k] && !force) return;
+  FIRED[k] = Date.now();
+  const cutoff = Date.now() - 8*86400e3;
+  Object.keys(FIRED).forEach(x => { if (FIRED[x] < cutoff) delete FIRED[x]; });
+  LS.set("mtec_fired", FIRED);
+  const p = Object.assign({}, a, {stage, lead:+S.alertLead, beep:S.alertSound});
+  window.onAlert(p);
+  desktopNotify(p);
+}
+function desktopNotify(p){
+  if (!S.alertNative || !("Notification" in window) || Notification.permission !== "granted") return;
+  if (!document.hidden) return;                       // the in-page banner already covers a visible tab
+  const name = `${p.country} ${p.title}`;
+  const title = p.stage === "pre" ? `In ${p.lead} min: ${name}` : p.stage === "actual" ? `${name}: ${p.actual}` : `Released: ${name}`;
+  const body = `Forecast ${p.forecast || "—"} · Previous ${p.previous || "—"}${p.stage === "actual" && p.verdict ? " · " + p.verdict : ""}`;
+  try { const n = new Notification(title, {body, icon:"icon.png", tag:p.key + p.stage}); n.onclick = () => { window.focus(); n.close(); }; } catch(e){}
+}
+function alertLoop(){
+  const now = Date.now();
+  SCHEDULE.forEach(a => {
+    const t = new Date(a.date).getTime();
+    if (+S.alertLead > 0 && now < t){ const w = t - S.alertLead*60e3; if (w <= now && now < w + 600e3) fireAlert(a, "pre"); }
+    if (S.alertAtRelease && t <= now && now < t + 600e3) fireAlert(a, "release");
+  });
+}
+let AUDIO = null;
+document.addEventListener("pointerdown", () => {           // browsers only allow sound after the first click
+  try { if (!AUDIO) AUDIO = new (window.AudioContext || window.webkitAudioContext)(); if (AUDIO.state === "suspended") AUDIO.resume(); } catch(e){}
+}, {once:false, passive:true});
+
+/* ====================================================================== */
+/*  KPIs, ticker, clocks                                                  */
+/* ====================================================================== */
+const usHigh = () => EVENTS.filter(e => e.impact === "High" && S.currencies.includes(e.country));
+function renderKpis(rows){
+  const now = Date.now(), tz = S.timezone, hi = usHigh();
+  const next = hi.find(e => e._d.getTime() >= now - 60e3);
+  $("#kNextT").textContent = next ? countdown(next._d.getTime() - now) : "--:--:--";
+  $("#kNextN").textContent = next ? `${next.title} · ${wd(next._d,tz)} ${hhmm(next._d,tz)}` : "None left this week";
+  const left = hi.filter(e => e._d.getTime() >= now).length;
+  $("#kHigh").textContent = hi.length;
+  $("#kHighS").textContent = `${left} to go · ${hi.length - left} out`;
+  const sch = schedule().filter(a => new Date(a.date).getTime() > now - 60e3);
+  $("#kAl").textContent = sch.length;
+  $("#kAlS").textContent = sch.length ? `next: ${sch[0].title}` : "click a bell to arm";
+  $("#bellBadge").textContent = sch.length; $("#bellBadge").classList.toggle("on", sch.length > 0);
+  const st = FEED.status, good = st === "live" || st === "cached", warn = st === "stale" || st === "demo";
+  $("#kFeed").textContent = ({live:"LIVE",cached:"LIVE",stale:"STALE",offline:"OFFLINE",demo:"DEMO"})[st] || "—";
+  $("#kFeed").className = "v " + (good ? "up" : warn ? "warn" : st === "offline" ? "down" : "");
+  $("#kDot").className = "dot " + (good ? "live" : warn ? "warn" : st === "offline" ? "bad" : "");
+  const upd = FEED.fetched_at ? new Date(FEED.fetched_at*1000) : null;
+  $("#kFeedS").textContent = upd ? `${rows.length} shown · ${hhmm(upd,tz)} ${tzAbbr(tz)}` : (FEED.error || "—");
+  $("#stUpd").innerHTML = upd ? `<b>LAST PULL</b> ${hhmm(upd,tz)} ${tzAbbr(tz)}${FEED.error ? " · " + esc(FEED.error) : ""}` : "";
+}
+function renderTicker(){
+  const now = Date.now(), tz = S.timezone;
+  const up = usHigh().filter(e => e._d.getTime() >= now - 60e3).slice(0, 12);
+  const items = up.length ? up.map(e => `<span class="tk"><span class="imp"></span><span class="t">${wd(e._d,tz)} ${hhmm(e._d,tz)}</span><span>${esc(e.country)} ${esc(e.title)}</span><span class="c" data-t="${e._d.getTime()}">${countdown(e._d.getTime()-now)}</span></span>`).join("")
+    : `<span class="tk">No upcoming high-impact releases this week</span>`;
+  $("#run").innerHTML = items + items;
+}
+function renderClocks(){
+  $("#clocks").innerHTML = CLOCKS.map(([n,tz,c]) => `<div class="clock ${c}"><b>${n}</b><span>${fmt(tz,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date()).replace(/^24/,"00")}</span></div>`).join("");
+  const p = fmt("America/New_York",{weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
+  const g = t => p.find(x=>x.type===t).value, mins = (+g("hour") % 24) * 60 + +g("minute");
+  let txt = "NYSE CLOSED", cls = "bad";
+  if (!["Sat","Sun"].includes(g("weekday"))){
+    if (mins >= 570 && mins < 960){ txt = "NYSE OPEN"; cls = "live"; }
+    else if (mins >= 240 && mins < 570){ txt = "PRE-MARKET"; cls = "warn"; }
+    else if (mins >= 960 && mins < 1200){ txt = "AFTER HOURS"; cls = "warn"; }
+  }
+  const nyToday = dayKey(new Date(),"America/New_York");
+  if (EVENTS.some(e => e.impact === "Holiday" && e.country === "USD" && dayKey(e._d,"America/New_York") === nyToday)){ txt = "US HOLIDAY"; cls = "bad"; }
+  $("#mkt").innerHTML = `<span class="dot ${cls}"></span><span>${txt}</span>`;
+}
+function tick(){
+  renderClocks();
+  const now = Date.now();
+  let rerender = false;
+  $$("[data-t]").forEach(el => {
+    const d = +el.dataset.t - now;
+    if (d < 60e3 && el.classList.contains("tm")) rerender = true;
+    else el.textContent = countdown(d);
+  });
+  if (rerender) renderAll();
+  const hi = usHigh().find(e => e._d.getTime() >= now - 60e3);
+  if (hi) $("#kNextT").textContent = countdown(hi._d.getTime() - now);
+  alertLoop();
+}
+
+/* ====================================================================== */
+/*  Live widget                                                           */
+/* ====================================================================== */
+function widgetUrl(){
+  const p = new URLSearchParams({
+    columns:"exc_flags,exc_currency,exc_importance,exc_actual,exc_forecast,exc_previous",
+    features:"datepicker,timezone,timeselector,filters",
+    category:"_employment,_economicActivity,_inflation,_credit,_centralBanks,_confidenceIndex,_balance,_Bonds",
+    countries:"5", calType:S.widgetCalType, lang:"1"
+  });
+  if (S.widgetImportance.length < 3) p.set("importance", S.widgetImportance.join(","));
+  if (INVESTING_TZ[S.timezone]) p.set("timeZone", INVESTING_TZ[S.timezone]);
+  return "https://sslecal2.investing.com?" + decodeURIComponent(p.toString());
+}
+let lastWidgetUrl = "";
+function renderLive(force){
+  $("#frame").classList.toggle("dark", !!S.widgetDark);
+  if (curView !== "live") return;
+  const u = widgetUrl();
+  if (force || u !== lastWidgetUrl){ $("#ifr").src = u; lastWidgetUrl = u; }
+}
+
+/* ====================================================================== */
+/*  Controls / saving                                                     */
+/* ====================================================================== */
+const pick = (o, keys) => JSON.stringify(keys.map(k => o[k]));
+const isDirty = () => pick(S, FILTER_KEYS) !== pick(SAVED, FILTER_KEYS);
+function syncControls(){
+  document.body.classList.toggle("compact", !!S.compact);
+  $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.view === curView));
+  $$(".view").forEach(v => v.classList.toggle("on", v.id === "view-" + curView));
+  document.body.classList.toggle("v-live", curView === "live");
+  Object.keys(DROPS).forEach(syncDrop);
+  $$("[data-pref]").forEach(el => {
+    const v = S[el.dataset.pref];
+    if (el.tagName === "SELECT") el.value = String(v); else el.classList.toggle("on", !!v);
+  });
+  const d = isDirty();
+  $("#saveBtn").disabled = !d; $("#undoBtn").disabled = !d;
+  $("#dirtyln").classList.toggle("on", d);
+  $("#dirtyln").textContent = d ? "● Unsaved filter changes" : "✓ Defaults saved";
+}
+function change(fn){ fn(); syncControls(); renderAll(); renderLive(); syncSchedule(); }
+function setPref(k, v){                    // settings panel + pin: saves immediately
+  S[k] = v; SAVED[k] = v;
+  Backend.save(SAVED);
+  syncControls(); renderAll(); syncSchedule();
+}
+async function saveDefaults(){
+  FILTER_KEYS.forEach(k => SAVED[k] = clone(S[k]));
+  await Backend.save(SAVED);
+  syncControls(); toast("Filters saved as default");
+}
+async function resetDefaults(){
+  const r = await Backend.reset();
+  S = normalize(r.settings); SAVED = clone(S); $("#q").value = "";
+  syncControls(); renderAll(); renderLive(); scheduleAuto(); syncSchedule();
+  toast("Factory defaults restored");
+}
+function setView(v){ curView = v; closeAll(); syncControls(); renderLive(); }
+function openDrawer(on){ if (on) renderFredStatus(); $("#drawer").classList.toggle("on", on); $("#scrim").classList.toggle("on", on); if (on){ closeDrops(); toggleAlertsPop(false); } }
+function toggleAlertsPop(force){ const p = $("#alertPop"); const on = force ?? !p.classList.contains("open"); if (on){ closeDrops(); renderAlertsPop(); } p.classList.toggle("open", on); }
+function closeAll(){ closeDrops(); toggleAlertsPop(false); openDrawer(false); }
+function renderFredStatus(){
+  const el = $("#stFred"), st = $("#fredSt"); if (!el || !S) return;
+  let cls = "fred ok", txt = "<b>FRED ●</b> actuals on";
+  if (LOCAL_FILE){ cls = "fred warn"; txt = "<b>FRED</b> actuals load on the live site"; }
+  else if (FRED_STATE === "off"){ cls = "fred bad"; txt = "<b>FRED</b> not set up on this site"; }
+  else if (FRED_ERR){ cls = "fred bad"; txt = "<b>FRED</b> " + esc(FRED_ERR); }
+  el.className = cls; el.innerHTML = txt;
+  if (st){ st.className = "keyst " + (cls.includes("ok") ? "ok" : cls.includes("bad") ? "bad" : ""); st.innerHTML = txt.replace(/<\/?b>/g, ""); }
+}
+let toastT;
+function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1800); }
+
+function wire(){
+  $$(".tab").forEach(b => b.onclick = () => setView(b.dataset.view));
+  $("#q").oninput = () => renderAll();
+  $("#saveBtn").onclick = () => { if (isDirty()) saveDefaults(); };
+  $("#undoBtn").onclick = () => { change(() => FILTER_KEYS.forEach(k => S[k] = clone(SAVED[k]))); toast("Back to your saved defaults"); };
+  $("#tb").onclick = e => {
+    const b = e.target.closest(".bell, [data-bell]");
+    if (b){ e.stopPropagation(); toggleAlert(b.dataset.k || b.dataset.bell); return; }
+    const o = e.target.closest("[data-open]"); if (o){ Backend.open(o.dataset.open); return; }
+    if (e.target.closest("[data-live]")){ setView("live"); return; }
+    if (e.target.closest("[data-settings]")){ openDrawer(true); return; }
+    if (e.target.closest("tr.det")) return;
+    const r = e.target.closest("tr.ev"); if (!r) return;
+    const k = r.dataset.k; EXP.has(k) ? EXP.delete(k) : EXP.add(k);
+    renderAll();
+  };
+  $("#stFred").onclick = () => openDrawer(true);
+  $("#fredTerms2").onclick = () => Backend.open("https://fred.stlouisfed.org/docs/api/terms_of_use.html");
+  $("#bellBtn").onclick = e => { e.stopPropagation(); toggleAlertsPop(); };
+  $("#kAlerts").onclick = e => { e.stopPropagation(); toggleAlertsPop(true); };
+  $("#alertPop").onclick = e => e.stopPropagation();
+  $("#alist").onclick = e => { const b = e.target.closest(".rm"); if (b){ toggleAlert(b.dataset.k); renderAlertsPop(); } };
+  $("#clearAlerts").onclick = () => {
+    ALERTS.armed = {};
+    if (S.alertAutoHigh) EVENTS.forEach(e => { if (autoEligible(e)) ALERTS.muted.push(e._k); });
+    Backend.saveAlerts(ALERTS); syncSchedule(); renderAll(); renderAlertsPop(); toast("All alerts cleared");
+  };
+  $("#popSettings").onclick = () => openDrawer(true);
+  $("#gearBtn").onclick = e => { e.stopPropagation(); openDrawer(!$("#drawer").classList.contains("on")); };
+  $("#closeDrawer").onclick = () => openDrawer(false);
+  $("#scrim").onclick = () => openDrawer(false);
+  $$("[data-pref]").forEach(el => {
+    const k = el.dataset.pref;
+    if (el.tagName === "SELECT") el.onchange = () => { const v = el.value; setPref(k, /^\d+$/.test(v) ? +v : v); if (k === "autoRefreshMin") scheduleAuto(); };
+    else el.onclick = async () => {
+      if (el.disabled) return;
+      if (k === "alertNative" && !S[k]){
+        if (!("Notification" in window)){ toast("This browser doesn't support notifications"); return; }
+        const perm = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission;
+        if (perm !== "granted"){ toast("Notifications are blocked for this site in your browser settings"); return; }
+      }
+      setPref(k, !S[k]);
+    };
+  });
+  $("#testAlert").onclick = () => Backend.testAlert();
+  $("#resetBtn").onclick = resetDefaults;
+  $("#refreshBtn").onclick = () => refresh(true);
+  $("#popBtn").onclick = () => Backend.popout(widgetUrl());
+  $("#invLink").onclick = e => { e.preventDefault(); Backend.open("https://www.investing.com/"); };
+  document.addEventListener("click", () => { closeDrops(); toggleAlertsPop(false); });
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s"){ e.preventDefault(); if (isDirty()) saveDefaults(); else toast("Already saved"); return; }
+    if (e.key === "Escape"){ closeAll(); if (e.target.tagName === "INPUT") e.target.blur(); return; }
+    if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+    const k = e.key.toLowerCase();
+    if (k === "r") refresh(true);
+    else if (k === "t") setView("terminal");
+    else if (k === "l") setView("live");
+    else if (k === "a") toggleAlertsPop();
+    else if (k === "/"){ e.preventDefault(); setView("terminal"); $("#q").focus(); }
+  });
+}
+
+/* ====================================================================== */
+/*  Data                                                                  */
+/* ====================================================================== */
+async function refresh(force){
+  const b = $("#refreshBtn"); b.classList.add("spin");
+  try {
+    const r = await Backend.calendar(force);
+    FEED = {status:r.status, fetched_at:r.fetched_at, error:r.error};
+    EVENTS = (r.events || []).map(e => Object.assign({}, e, {_d:new Date(e.date), _k:evKey(e)}))
+      .filter(e => !isNaN(e._d)).sort((a,b) => a._d - b._d || (IMPACT_RANK[b.impact]||0) - (IMPACT_RANK[a.impact]||0));
+    if (force && r.status === "cached") toast("Up to date · feed refreshes every 10 min");
+  } catch(err){ FEED = {status:"offline", error:String(err)}; }
+  b.classList.remove("spin");
+  pruneAlerts(); renderAll(); syncSchedule(); pollActuals();
+  if (curView === "live" && force) renderLive(true);
+}
+function scheduleAuto(){ clearInterval(autoTimer); if (S.autoRefreshMin > 0) autoTimer = setInterval(() => refresh(false), S.autoRefreshMin*60e3); }
+function renderAll(){ if (!S) return; const rows = renderTable(); renderKpis(rows); renderTicker(); if ($("#alertPop").classList.contains("open")) renderAlertsPop(); }
+function normalize(s){
+  const d = DEFAULTS || fallbackDefaults();
+  const o = Object.assign({}, d, s || {});
+  ["currencies","impacts","categories","widgetImportance"].forEach(k => { if (!Array.isArray(o[k])) o[k] = clone(d[k]); });
+  o.currencies = o.currencies.filter(c => CURRENCIES.includes(c)); if (!o.currencies.length) o.currencies = ["USD"];
+  delete o.window;
+  return o;
+}
+function demoEvents(){
+  const mon = new Date(); mon.setHours(0,0,0,0); mon.setDate(mon.getDate() - ((mon.getDay()+6)%7));
+  const at = (d,h,m) => { const x = new Date(mon); x.setDate(mon.getDate()+d); x.setHours(h,m,0,0); return x.toISOString(); };
+  return [
+    [0,5,0,"USD","FOMC Member Barr Speaks","Low","","",""],[0,8,30,"USD","Empire State Manufacturing Index","Medium","","17.6","25.5"],
+    [0,9,48,"USD","Cleveland Fed Inflation Expectations","Low","","","3.3%"],[0,12,0,"USD","Fed Chairman Warsh Speaks","High","","",""],
+    [0,14,15,"USD","FOMC Member Hammack Speaks","Low","","",""],[1,8,15,"USD","ADP Weekly Employment Change","Low","","","19.8K"],
+    [1,8,30,"USD","Core Retail Sales m/m","High","","0.4%","0.9%"],[1,8,30,"USD","Retail Sales m/m","High","","0.2%","0.8%"],
+    [1,8,30,"USD","Import Prices m/m","Low","","0.7%","1.1%"],[1,9,15,"USD","Industrial Production m/m","Low","","0.1%","0.7%"],
+    [1,10,0,"USD","NAHB Housing Market Index","Low","","29","29"],[2,8,30,"USD","Building Permits","Medium","","1.38M","1.40M"],
+    [2,10,30,"USD","Crude Oil Inventories","Medium","","-1.5M","3.8M"],[2,14,0,"USD","FOMC Meeting Minutes","High","","",""],
+    [3,8,30,"USD","Unemployment Claims","High","","215K","213K"],[3,8,30,"USD","Philly Fed Manufacturing Index","Medium","","8.3","16.3"],
+    [3,10,0,"USD","Existing Home Sales","Medium","","4.10M","4.06M"],[4,9,45,"USD","Flash Manufacturing PMI","High","","52.1","52.5"],
+    [4,10,0,"USD","Revised UoM Consumer Sentiment","Medium","","57.0","56.4"],[1,2,0,"EUR","German ZEW Economic Sentiment","High","","38.5","39.3"]
+  ].map(r => ({title:r[4],country:r[3],date:at(r[0],r[1],r[2]),impact:r[5],actual:r[6],forecast:r[7],previous:r[8]}));
+}
+
+/* ====================================================================== */
+/*  Boot                                                                  */
+/* ====================================================================== */
+async function boot(){
+  const r = await Backend.getSettings();
+  DEFAULTS = r.defaults; S = normalize(r.settings); SAVED = clone(S);
+  ALERTS = Object.assign({armed:{}, muted:[]}, r.alerts || {});
+  NATIVE = "Notification" in window;
+  curView = S.view === "live" ? "live" : "terminal";
+  $("#ver").textContent = LOCAL_FILE ? "US MACRO CALENDAR · PREVIEW" : `US MACRO CALENDAR · V${r.version}`;
+  $("#aboutVer").textContent = `MT Economic Calendar v${r.version}`;
+  if (!NATIVE){ $("#nativeSw").disabled = true; $("#nativeNote").textContent = "not supported in this browser"; }
+  else if (S.alertNative && Notification.permission !== "granted"){ S.alertNative = false; }
+  buildDrops(); wire(); syncControls(); renderClocks(); renderAll(); renderLive();
+  renderFredStatus();
+  await refresh(false);
+  scheduleAuto();
+  setInterval(tick, 1000);
+  setInterval(pollActuals, 60e3);
+}
+let booted = false;
+function start(){ if (!booted){ booted = true; boot(); } }
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+</script>
+</body>
+</html>
