@@ -334,6 +334,17 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 .inst-ok{margin-top:10px;font:600 12px var(--mono);color:var(--up)}
 .inst-now{width:100%;margin-top:10px}
 
+.modal{position:fixed;inset:0;z-index:95;background:var(--scrim);display:grid;place-items:center;padding:20px}
+.modal[hidden]{display:none}
+.mcard{width:min(420px,100%);background:var(--panel2);border:1px solid var(--line2);border-top:3px solid var(--amber);box-shadow:0 24px 60px var(--shadow);padding:22px 22px 18px;animation:slide .2s ease}
+.mcard .mic{width:40px;height:40px;display:grid;place-items:center;background:var(--amberglow);color:var(--amber);margin-bottom:12px}
+.mcard .mic svg{width:22px;height:22px}
+.mcard h3{font:700 18px var(--cond);letter-spacing:2px;text-transform:uppercase;color:var(--strong);margin-bottom:8px}
+.mcard p{font:400 13.5px/1.55 var(--sans);color:var(--text);margin-bottom:10px}
+.mcard ul{margin:0 0 16px 18px;font:400 13px/1.6 var(--sans);color:var(--dim)}
+.mcard .primary{width:100%;height:42px}
+:root[data-theme="light"] .mcard{background:#fff}
+
 /* live */
 .frame{flex:1;min-height:0;padding:12px 14px;display:flex;flex-direction:column}
 .frame .card{flex:1;min-height:0;border:1px solid var(--line2);background:#fff}
@@ -755,6 +766,18 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
   </div>
 </aside>
 
+<div class="modal" id="mobModal" hidden>
+  <div class="mcard" role="dialog" aria-modal="true" aria-labelledby="mobTitle">
+    <div class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+    <h3 id="mobTitle">Alerts on phones</h3>
+    <p>Your alert is set, but on a phone it only fires <b>while this app is open on screen</b>. Phones pause web pages when you switch apps or lock the screen, so alerts can't reach you then.</p>
+    <ul>
+      <li>Keep the app open around the release time, or</li>
+      <li>Set your alerts on a computer, where they keep working in the background.</li>
+    </ul>
+    <button class="primary" id="mobOk">Got it</button>
+  </div>
+</div>
 <div class="banners" id="banners"></div>
 <div class="toast" id="toast"></div>
 
@@ -802,7 +825,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.4.0";
+const APP_VERSION = "3.4.1";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -1252,6 +1275,12 @@ function onActual(e){
 /* ====================================================================== */
 const autoEligible = e => S.alertAutoHigh && e.impact === "High" && S.currencies.includes(e.country) && !ALERTS.muted.includes(e._k);
 function alertState(e){ return ALERTS.armed[e._k] ? "on" : autoEligible(e) ? "auto" : ""; }
+const isMobileDevice = () => platform() !== "desktop";
+function mobileAlertNotice(){
+  if (!isMobileDevice() || LS.get("mtec_mobile_alert_ok", false)) return;
+  $("#mobModal").hidden = false;
+  setTimeout(() => $("#mobOk").focus(), 50);
+}
 function toggleAlert(k){
   const e = EVENTS.find(x => x._k === k);
   if (!e){ delete ALERTS.armed[k]; Backend.saveAlerts(ALERTS); syncSchedule(); renderAll(); return; }
@@ -1264,6 +1293,7 @@ function toggleAlert(k){
   }
   Backend.saveAlerts(ALERTS);
   toast(alertState(e) ? "Alert armed · " + e.title : "Alert removed");
+  if (alertState(e)) mobileAlertNotice();
   syncSchedule(); renderAll();
 }
 function schedule(){
@@ -1544,6 +1574,7 @@ function wire(){
   };
   $("#stFred").onclick = () => openDrawer(true);
   $$(".htabs button").forEach(b => b.onclick = () => showHelpTab(b.dataset.p));
+  $("#mobOk").onclick = () => { LS.set("mtec_mobile_alert_ok", true); $("#mobModal").hidden = true; };
   $("#instNow").onclick = async () => { if (!INSTALL_EVT) return; INSTALL_EVT.prompt(); try { await INSTALL_EVT.userChoice; } catch(e){} INSTALL_EVT = null; syncInstall(); };
   $("#fredTerms2").onclick = () => Backend.open("https://fred.stlouisfed.org/docs/api/terms_of_use.html");
   $("#bellBtn").onclick = e => { e.stopPropagation(); toggleAlertsPop(); };
@@ -1572,6 +1603,7 @@ function wire(){
         if (perm !== "granted"){ toast("Notifications are blocked for this site in your browser settings"); return; }
       }
       setPref(k, !S[k]);
+      if (k === "alertAutoHigh" && S[k]) mobileAlertNotice();
     };
   });
   $("#testAlert").onclick = () => Backend.testAlert();
@@ -1582,6 +1614,7 @@ function wire(){
   document.addEventListener("click", () => { closeDrops(); toggleAlertsPop(false); });
   document.addEventListener("keydown", e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s"){ e.preventDefault(); if (isDirty()) saveDefaults(); else toast("Already saved"); return; }
+    if (e.key === "Escape" && !$("#mobModal").hidden){ $("#mobOk").click(); return; }
     if (e.key === "Escape"){ closeAll(); if (e.target.tagName === "INPUT") e.target.blur(); return; }
     if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
     const k = e.key.toLowerCase();
