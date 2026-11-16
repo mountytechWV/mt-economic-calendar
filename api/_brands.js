@@ -13,7 +13,7 @@
 //   onAccent    text color on top of the accent (white for dark accents, black for light ones)
 //   chrome      optional colored frame {header, ticker, kpi, side} around a light calendar
 //   community   optional header button {label, url}
-//   credit      shown in Settings -> About
+//   credit      shown in Settings -> About (developer adds a second line)
 //   defaults    starting settings for new visitors (any key from the app's settings)
 
 const BRANDS = {
@@ -44,16 +44,18 @@ const BRANDS = {
     title: ["Econ", "Calendar"],
     sub: "LE Trading Academy",
     theme: "light",
-    accent: "#6C3FDB",
-    accentHover: "#5A2FC6",
+    accent: "#673AB7",            // Elly's purple (letradingacademy.com)
+    accentHover: "#5E35B1",
     onAccent: "#FFFFFF",
-    background: "#5A2FC6",
+    background: "#673AB7",
     // colored frame: header, ticker strip, KPI tiles and sidebar (the calendar stays white)
-    chrome: { header: "#5A2FC6", ticker: "#3E1D93", kpi: "#6C3FDB", side: "#4A27AA" },
+    chrome: { header: "#673AB7", ticker: "#4527A0", kpi: "#5E35B1", side: "#512DA8" },   // deep purple 500/800/600/700
     icons: { favicon: "/brands/le/icon-192.png", i192: "/brands/le/icon-192.png", i512: "/brands/le/icon-512.png" },
     community: { label: "Join the free Discord", url: "https://discord.gg/letradingacademy" },
     credit: "Brought to you by LE Trading Academy",
     creditUrl: "https://letradingacademy.com/",
+    developer: "Developed by MountyTech",
+    developerUrl: "https://github.com/mountytechWV",
     defaults: { widgetDark: false },
   },
 };

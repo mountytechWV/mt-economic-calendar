@@ -40,10 +40,18 @@
   --up:#0B9A55; --down:#D6334A; --cyan:#4B5BD6; --hol:#9AA0B4; --hi:#E0414F; --med:#E09A00; --lo:#BFA72C;
   --up-rgb:11,154,85; --down-rgb:214,51,74; --on-up:#FFFFFF;
   --top1:#FFFFFF; --top2:#FBFAFF; --bar-bg:#F6F4FC; --thead:#FAF9FE; --rowline:#DFD9EE; --rowhover:#F4F1FD;
-  --day1:#EFEBFB; --day2:#FFFFFF; --openbg:#F3EFFE; --detbg:#FBFAFF; --strong:#0B0D2E; --tabhover:rgba(20,22,61,.03);
+  --day1:#EFEBFB; --day2:#FFFFFF; --openbg:rgba(var(--accent-rgb),.10); --detbg:rgba(var(--accent-rgb),.10); --strong:#0B0D2E; --tabhover:rgba(20,22,61,.03);
   --shadow:rgba(20,22,61,.14); --scrim:rgba(20,22,61,.25); --chart-bar:#CFC8EE; --chart-neg:#F2C3CA;
 }
 ::selection{background:rgba(var(--accent-rgb),.25)}
+:root[data-theme="light"] .dp .why,:root[data-theme="light"] .nbox .pair div{background:#fff}
+:root[data-theme="light"] .chart .msg{background:rgba(255,255,255,.6)}
+:root[data-theme="light"] .dacts button{background:#fff}
+:root[data-theme="light"] .dp>div{border-right-color:rgba(var(--accent-rgb),.18)}
+:root[data-theme="light"] tr.ev.open td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+:root[data-theme="light"] .dp{border-left-color:var(--amber)}
+:root[data-theme="light"] tr.ev.open .c-ev .chev{color:var(--amber)}
+@media (max-width:640px){ :root[data-theme="light"] tr.ev.open{box-shadow:inset 3px 0 0 var(--amber)} }
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;overflow:hidden}
@@ -742,7 +750,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.3.1";
+const APP_VERSION = "3.3.3";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -1567,7 +1575,8 @@ async function boot(){
   $("#bName").innerHTML = `${esc(B.title[0])} <span>${esc(B.title[1])}</span>`;
   $("#ver").textContent = (B.sub + (LOCAL_FILE ? " · PREVIEW" : ` · V${r.version}`)).toUpperCase();
   $("#aboutVer").textContent = `${B.name} v${r.version}`;
-  $("#aboutCredit").innerHTML = B.credit ? (B.creditUrl ? `<a class="link" data-href="${esc(B.creditUrl)}">${esc(B.credit)} ↗</a>` : esc(B.credit)) : "";
+  const lnk = (t, u) => t ? (u ? `<a class="link" data-href="${esc(u)}">${esc(t)} ↗</a>` : esc(t)) : "";
+  $("#aboutCredit").innerHTML = [lnk(B.credit, B.creditUrl), lnk(B.developer, B.developerUrl)].filter(Boolean).join("<br>");
   const cb = $("#commBtn");
   if (B.community && B.community.url){ cb.hidden = false; cb.title = B.community.label; cb.querySelector("span").textContent = B.community.label; cb.onclick = () => Backend.open(B.community.url); }
   $$("[data-href]").forEach(a => a.onclick = () => Backend.open(a.dataset.href));
