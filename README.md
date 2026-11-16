@@ -27,6 +27,11 @@ A Wall Street style **US economic calendar** that runs in the browser. Countdown
 - **Save as default** at the bottom of the sidebar saves your filters (**Undo** reverts unsaved changes). **Reset to factory** in Settings undoes everything.
 - Keyboard: `R` refresh · `T` / `L` views · `A` alerts · `/` search · `Ctrl+S` save defaults
 
+**On phones**
+- Same link, rearranged for small screens: filters slide out from the Filters button, events become two-line cards, and tapping a card opens the detail panel
+- Add it to your home screen (Safari: Share → Add to Home Screen; Chrome: ⋮ → Add to Home screen) and it opens full-screen like an app
+- Phones freeze web pages when you switch apps or lock the screen, so alerts only fire while the page is on screen. Use a computer for background alerts.
+
 Everything you set is stored in your own browser. There are no accounts and the site collects nothing.
 
 ## Data sources
@@ -62,6 +67,7 @@ To preview the page without deploying, open `public/index.html` straight from di
 ```
 public/index.html       the terminal UI (HTML/CSS/JS)
 public/indicators.js    event descriptions, sources and FRED series mappings
+public/manifest.webmanifest  home-screen app settings and icons
 public/fonts/           bundled fonts (SIL OFL 1.1)
 api/calendar.js         relays the weekly calendar feed (cached)
 api/fred.js             relays FRED for the allowed series, keeps the key server-side (cached)

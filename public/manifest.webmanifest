@@ -1,0 +1,23 @@
+{
+  "name": "MT Economic Calendar",
+  "short_name": "MT Econ",
+  "description": "Wall Street style US economic calendar with countdowns, alerts, actuals and history.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070A",
+  "theme_color": "#05070A",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

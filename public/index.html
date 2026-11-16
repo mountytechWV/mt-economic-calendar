@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MT Economic Calendar</title>
 <meta name="description" content="A Wall Street style US economic calendar with countdowns, alerts, actuals and history.">
 <link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#05070A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MT Econ">
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
 :root{
@@ -29,7 +36,7 @@ input,select{font:inherit;color:inherit}
 ::-webkit-scrollbar-thumb{background:var(--line2);border:2px solid var(--bg2);border-radius:6px}
 svg{display:block}
 
-.app{display:grid;grid-template-rows:52px 30px 1fr 24px;height:100vh}
+.app{display:grid;grid-template-rows:52px 30px 1fr 24px;height:100vh;height:100dvh}
 
 /* ---------- top bar ---------- */
 .top{display:flex;align-items:center;gap:8px;padding:0 12px 0 0;background:linear-gradient(#0C1118,#080B10);border-bottom:1px solid var(--line)}
@@ -342,6 +349,87 @@ tr.det td{padding:0;background:#0A0F16;border-bottom:1px solid var(--line2);whit
 
 .toast{position:fixed;left:50%;bottom:38px;transform:translate(-50%,16px);background:var(--panel2);border:1px solid var(--amber);padding:9px 16px;font:600 12.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;opacity:0;transition:.2s;pointer-events:none;z-index:90}
 .toast.on{transform:translate(-50%,0);opacity:1}
+
+/* ================= responsive ================= */
+.mob{display:none!important}
+@media (max-width:1100px){
+  .clock:not(.home){display:none}
+  .status .r{display:none}
+}
+@media (max-width:900px){
+  .mob{display:flex!important}
+  .ib.mob{display:grid!important}
+  .badge:empty{display:none}
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;top:0;bottom:0;left:0;width:min(320px,86vw);z-index:72;transform:translateX(-100%);transition:transform .2s ease;box-shadow:20px 0 50px rgba(0,0,0,.5);padding-top:env(safe-area-inset-top)}
+  .side.on{transform:none}
+  .sidehead{align-items:center;justify-content:space-between;height:52px;padding:0 10px 0 16px;border-bottom:1px solid var(--line);background:var(--panel);font:700 16px var(--cond);letter-spacing:2.5px;text-transform:uppercase}
+  .side .scroll h4:first-child{display:none}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi{border-bottom:1px solid var(--line)}
+  .kpi:nth-child(2n){border-right:0}
+  .kpi .row{flex-direction:column;align-items:flex-start;gap:0}
+  .kpi .v{font-size:20px}
+  .dp{grid-template-columns:1fr}
+  .dp>div{border-right:0;border-bottom:1px solid var(--line)}
+  .dp>div:last-child{border-bottom:0}
+  .drawer{width:100vw}
+  .pop{left:8px;right:8px;width:auto}
+  .banners{left:10px;right:10px;width:auto;bottom:calc(30px + env(safe-area-inset-bottom))}
+  .frame{padding:8px}
+}
+@media (max-width:640px){
+  html,body{font-size:13px}
+  .top{gap:6px;padding:0 8px 0 0;padding-top:env(safe-area-inset-top)}
+  .brand{padding-right:0;border-right:0}
+  .brand>div:last-child{display:none}
+  .brand .mark{width:46px;font-size:20px}
+  .tab{padding:0 10px;font-size:13px;letter-spacing:1.4px}
+  .tab .long{display:none}
+  .clocks,.mkt span:last-child{display:none}
+  .mkt{padding:0 10px;border:0;background:none}
+  .ib{width:34px;height:34px}
+  .ticker .lbl{padding:0 10px;font-size:11px}
+  .kpi{padding:8px 12px}
+  .kpi h5{font-size:10px;letter-spacing:1.6px}
+  .kpi .s{font-size:10.5px;max-width:100%}
+  /* table -> cards */
+  table,tbody{display:block}
+  thead{display:none}
+  tr.day{display:block}
+  tr.day td{display:block;position:sticky;top:0;height:auto;padding:8px 12px;font-size:12px;letter-spacing:2px;overflow:hidden}
+  tr.day td .meta{font-size:10px;white-space:nowrap;margin-left:8px}
+  .kpis .kpi:nth-child(n+3){display:none}
+  .kpis .kpi{border-bottom:0}
+  tr.ev{display:grid;grid-template-columns:30px 1fr 1fr 1fr;grid-template-areas:"bell time time tm" "bell ev ev ev" "bell act fc pv";column-gap:8px;row-gap:4px;padding:10px 12px 11px 4px;border-bottom:1px solid #121A24}
+  tr.ev td{display:block;height:auto;padding:0;border:0;background:none!important;box-shadow:none!important}
+  tr.ev.next{background:linear-gradient(90deg,rgba(255,176,0,.13),transparent 70%);box-shadow:inset 3px 0 0 var(--amber)}
+  tr.ev.open{background:#0E1520;box-shadow:inset 3px 0 0 var(--cyan)}
+  td.c-bell{grid-area:bell;align-self:center;width:auto}
+  td.c-time{grid-area:time;width:auto;font-size:13px}
+  td.c-cur{display:none!important}
+  td.c-imp{grid-area:time;width:auto;align-self:center;margin-left:58px}
+  td.c-ev{grid-area:ev;max-width:none;white-space:normal;font-size:14px;line-height:1.3}
+  td.c-tm{grid-area:tm;width:auto;text-align:right}
+  td.c-num{width:auto;text-align:left;font-size:12.5px}
+  td.c-num.act{grid-area:act} td.c-num:nth-of-type(7){grid-area:fc} td.c-num:nth-of-type(8){grid-area:pv;text-align:right}
+  td.c-num{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  td.c-num::before{content:attr(data-l);font:600 9.5px var(--cond);letter-spacing:1.4px;color:var(--mute);text-transform:uppercase;margin-right:5px}
+  tr.ev.past{opacity:.55} tr.ev.past td{opacity:1}
+  tr.ev.past.open{opacity:1}
+  tr.det{display:block}
+  tr.det td{display:block;height:auto}
+  .dp>div{padding:14px 14px}
+  .dp .meta{gap:4px 12px}
+  .chart svg{height:130px}
+  .status{gap:12px;padding:0 10px calc(env(safe-area-inset-bottom)) 10px}
+  .status>span:first-child{display:none}
+  .toast{bottom:calc(36px + env(safe-area-inset-bottom));max-width:calc(100vw - 24px);text-align:center}
+}
+@media (hover:none){
+  .bell{opacity:.45}
+  .bell.on,.bell.auto{opacity:1}
+}
 </style>
 </head>
 <body>
@@ -358,10 +446,14 @@ tr.det td{padding:0;background:#0A0F16;border-bottom:1px solid var(--line2);whit
     </div>
     <nav class="tabs">
       <button class="tab on" data-view="terminal">Terminal</button>
-      <button class="tab" data-view="live">Live · Investing.com</button>
+      <button class="tab" data-view="live">Live<span class="long"> · Investing.com</span></button>
     </nav>
     <div class="mkt" id="mkt"><span class="dot"></span><span>NYSE</span></div>
     <div class="clocks" id="clocks"></div>
+    <button class="ib mob" id="filtBtn" title="Filters">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+      <span class="badge" id="filtBadge"></span>
+    </button>
     <button class="ib" id="bellBtn" title="Alerts (A)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
       <span class="badge" id="bellBadge">0</span>
@@ -382,7 +474,8 @@ tr.det td{padding:0;background:#0A0F16;border-bottom:1px solid var(--line2);whit
 
   <!-- ===== MAIN ===== -->
   <div class="shell">
-  <aside class="side">
+  <aside class="side" id="side">
+    <div class="sidehead mob"><span>Filters</span><button class="ib" id="closeSide" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="scroll">
       <h4 class="term-only">Filters</h4>
       <div class="sf term-only"><label>Range</label><div class="dd" id="ddRange"></div></div>
@@ -548,7 +641,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.0.0";
+const APP_VERSION = "3.1.0";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -784,9 +877,9 @@ function renderTable(){
       <td class="c-cur"><span class="cur">${esc(e.country)}</span></td>
       <td class="c-imp">${impBars(e.impact)}</td>
       <td class="c-ev" title="${esc(e.title)}">${esc(e.title)}${isSpeech(e.title)?'<span class="tag">SPEECH</span>':""}${e.impact==="Holiday"?'<span class="tag">HOLIDAY</span>':""}<span class="chev">▶</span></td>
-      <td class="num c-num act ${actClass(e)}">${av ? esc(av) + (!e.actual ? '<span class="src" title="Actual from FRED">FRED</span>' : "") : noAct}</td>
-      <td class="num c-num">${fcCell(e)}</td>
-      <td class="num c-num">${e.previous ? esc(e.previous) : '<span class="muted">—</span>'}</td>
+      <td class="num c-num act ${actClass(e)}" data-l="Act">${av ? esc(av) + (!e.actual ? '<span class="src" title="Actual from FRED">FRED</span>' : "") : noAct}</td>
+      <td class="num c-num" data-l="Fcst">${fcCell(e)}</td>
+      <td class="num c-num" data-l="Prev">${e.previous ? esc(e.previous) : '<span class="muted">—</span>'}</td>
       <td class="num c-tm">${tm}</td></tr>`;
     if (open) html += `<tr class="det"><td colspan="9">${detailHTML(e)}</td></tr>`;
   });
@@ -1144,6 +1237,8 @@ function syncControls(){
     const v = S[el.dataset.pref];
     if (el.tagName === "SELECT") el.value = String(v); else el.classList.toggle("on", !!v);
   });
+  const nf = Object.keys(DROPS).filter(id => $("#" + id).closest(".term-only") && !DROPS[id].cfg.isDefault(DROPS[id].cfg.get().map(String))).length + ($("#q").value.trim() ? 1 : 0);
+  $("#filtBadge").textContent = nf ? nf : "";
   const d = isDirty();
   $("#saveBtn").disabled = !d; $("#undoBtn").disabled = !d;
   $("#dirtyln").classList.toggle("on", d);
@@ -1167,9 +1262,15 @@ async function resetDefaults(){
   toast("Factory defaults restored");
 }
 function setView(v){ curView = v; closeAll(); syncControls(); renderLive(); }
+window.addEventListener("resize", () => { if (innerWidth > 900) openSide(false); });
+function openSide(on){
+  $("#side").classList.toggle("on", on);
+  $("#scrim").classList.toggle("on", on || $("#drawer").classList.contains("on"));
+  if (on){ closeDrops(); toggleAlertsPop(false); }
+}
 function openDrawer(on){ if (on) renderFredStatus(); $("#drawer").classList.toggle("on", on); $("#scrim").classList.toggle("on", on); if (on){ closeDrops(); toggleAlertsPop(false); } }
 function toggleAlertsPop(force){ const p = $("#alertPop"); const on = force ?? !p.classList.contains("open"); if (on){ closeDrops(); renderAlertsPop(); } p.classList.toggle("open", on); }
-function closeAll(){ closeDrops(); toggleAlertsPop(false); openDrawer(false); }
+function closeAll(){ closeDrops(); toggleAlertsPop(false); openDrawer(false); openSide(false); }
 function renderFredStatus(){
   const el = $("#stFred"), st = $("#fredSt"); if (!el || !S) return;
   let cls = "fred ok", txt = "<b>FRED ●</b> actuals on";
@@ -1184,7 +1285,7 @@ function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("on
 
 function wire(){
   $$(".tab").forEach(b => b.onclick = () => setView(b.dataset.view));
-  $("#q").oninput = () => renderAll();
+  $("#q").oninput = () => { renderAll(); syncControls(); };
   $("#saveBtn").onclick = () => { if (isDirty()) saveDefaults(); };
   $("#undoBtn").onclick = () => { change(() => FILTER_KEYS.forEach(k => S[k] = clone(SAVED[k]))); toast("Back to your saved defaults"); };
   $("#tb").onclick = e => {
@@ -1212,7 +1313,9 @@ function wire(){
   $("#popSettings").onclick = () => openDrawer(true);
   $("#gearBtn").onclick = e => { e.stopPropagation(); openDrawer(!$("#drawer").classList.contains("on")); };
   $("#closeDrawer").onclick = () => openDrawer(false);
-  $("#scrim").onclick = () => openDrawer(false);
+  $("#scrim").onclick = () => { openDrawer(false); openSide(false); };
+  $("#filtBtn").onclick = e => { e.stopPropagation(); openSide(!$("#side").classList.contains("on")); };
+  $("#closeSide").onclick = () => openSide(false);
   $$("[data-pref]").forEach(el => {
     const k = el.dataset.pref;
     if (el.tagName === "SELECT") el.onchange = () => { const v = el.value; setPref(k, /^\d+$/.test(v) ? +v : v); if (k === "autoRefreshMin") scheduleAuto(); };
