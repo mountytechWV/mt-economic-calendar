@@ -308,7 +308,8 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 .watchbox .where{font:400 12px/1.5 var(--sans);color:var(--dim)}
 .watchbox .links{display:flex;gap:14px;flex-wrap:wrap;font:500 11.5px var(--mono)}
 
-.brand .mark img{width:100%;height:100%;object-fit:contain;padding:6px;background:var(--bg)}
+.brand .mark img{width:100%;height:100%;object-fit:contain;padding:3px;background:#00051B;display:block}
+.brand .mark:has(img){padding:0;background:transparent!important}
 .comm{height:36px;padding:0 14px;display:flex;align-items:center;gap:8px;background:var(--amber);color:var(--on-accent);font:700 12.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;white-space:nowrap;text-decoration:none;cursor:pointer}
 .comm:hover{background:var(--amber-hover)}
 .comm[hidden]{display:none!important}
@@ -509,10 +510,10 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 }
 
 /* ================= brand chrome: colored frame around a light calendar ================= */
-:root[data-chrome="accent"]{ --ch-line:rgba(255,255,255,.16); --ch-text:#FFFFFF; --ch-dim:rgba(255,255,255,.74); --ch-mute:rgba(255,255,255,.5); --ch-panel:rgba(255,255,255,.10); --ch-hi:#FFE08A; }
+:root[data-chrome="accent"]{ --ch-pop:#FFFFFF; --ch-on-pop:var(--ch-header); --ch-field:#FFFFFF; --ch-field-text:var(--text); --ch-line:rgba(255,255,255,.16); --ch-text:#FFFFFF; --ch-dim:rgba(255,255,255,.74); --ch-mute:rgba(255,255,255,.5); --ch-panel:rgba(255,255,255,.10); --ch-hi:#FFE08A; }
 [data-chrome="accent"] .top{background:var(--ch-header);border-bottom-color:transparent;color:var(--ch-text)}
 [data-chrome="accent"] .brand{border-right-color:var(--ch-line)}
-[data-chrome="accent"] .brand .mark{background:#fff;color:var(--ch-header)}
+[data-chrome="accent"] .brand .mark{background:var(--ch-pop);color:var(--ch-on-pop)}
 [data-chrome="accent"] .brand .name{color:#fff}
 [data-chrome="accent"] .brand .name span{color:var(--ch-hi)}
 [data-chrome="accent"] .brand .ver{color:var(--ch-dim)}
@@ -524,11 +525,11 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 [data-chrome="accent"] .clock.home span{color:var(--ch-hi)}
 [data-chrome="accent"] .top .ib{background:var(--ch-panel);border-color:var(--ch-line);color:#fff}
 [data-chrome="accent"] .top .ib:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.18)}
-[data-chrome="accent"] .badge{background:#fff;color:var(--ch-header)}
-[data-chrome="accent"] .comm{background:#fff;color:var(--ch-header)}
-[data-chrome="accent"] .comm:hover{background:#F1ECFF}
+[data-chrome="accent"] .badge{background:var(--ch-pop);color:var(--ch-on-pop)}
+[data-chrome="accent"] .comm{background:var(--ch-pop);color:var(--ch-on-pop)}
+[data-chrome="accent"] .comm:hover{filter:brightness(.94)}
 [data-chrome="accent"] .ticker{background:var(--ch-ticker);border-bottom-color:transparent;color:#fff}
-[data-chrome="accent"] .ticker .lbl{background:#fff;color:var(--ch-ticker)}
+[data-chrome="accent"] .ticker .lbl{background:var(--ch-pop);color:var(--ch-on-pop)}
 [data-chrome="accent"] .tk .t{color:var(--ch-dim)}
 [data-chrome="accent"] .tk .c{color:var(--ch-hi)}
 [data-chrome="accent"] .tk .imp{background:#FF8A95}
@@ -545,18 +546,18 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 [data-chrome="accent"] .side{background:var(--ch-side);border-right-color:transparent;color:#fff}
 [data-chrome="accent"] .side h4{color:#fff}
 [data-chrome="accent"] .sf>label{color:var(--ch-dim)}
-[data-chrome="accent"] .side .ddb{background:#fff;border-color:transparent;color:var(--text)}
-[data-chrome="accent"] .side .ddb:hover,[data-chrome="accent"] .side .dd.open .ddb{background:#fff;border-color:var(--ch-hi)}
-[data-chrome="accent"] .side .ddb .val{color:var(--text)}
+[data-chrome="accent"] .side .ddb{background:var(--ch-field);border-color:transparent;color:var(--ch-field-text)}
+[data-chrome="accent"] .side .ddb:hover,[data-chrome="accent"] .side .dd.open .ddb{background:var(--ch-field);border-color:var(--ch-hi)}
+[data-chrome="accent"] .side .ddb .val{color:var(--ch-field-text)}
 [data-chrome="accent"] .side .ddb .val.f{color:var(--amber);font-weight:600}
-[data-chrome="accent"] .side .search{background:#fff;border-color:transparent}
-[data-chrome="accent"] .side .search input{color:var(--text)}
-[data-chrome="accent"] .side .wbtn{background:#fff;border-color:transparent;color:var(--ch-side)}
+[data-chrome="accent"] .side .search{background:var(--ch-field);border-color:transparent}
+[data-chrome="accent"] .side .search input{color:var(--ch-field-text)}
+[data-chrome="accent"] .side .wbtn{background:var(--ch-pop);border-color:transparent;color:var(--ch-on-pop)}
 [data-chrome="accent"] .side .foot{background:rgba(0,0,0,.14);border-top-color:var(--ch-line)}
 [data-chrome="accent"] .side .dirtyln{color:var(--ch-dim)}
 [data-chrome="accent"] .side .dirtyln.on{color:var(--ch-hi)}
-[data-chrome="accent"] .side .primary{background:#fff;color:var(--ch-side)}
-[data-chrome="accent"] .side .primary:hover{background:#F1ECFF}
+[data-chrome="accent"] .side .primary{background:var(--ch-pop);color:var(--ch-on-pop)}
+[data-chrome="accent"] .side .primary:hover{filter:brightness(.94)}
 [data-chrome="accent"] .side .primary:disabled{background:transparent;color:var(--ch-dim);border:1px solid var(--ch-line)}
 [data-chrome="accent"] .side .ghost{border-color:var(--ch-line);color:var(--ch-dim)}
 [data-chrome="accent"] .side .ghost:hover:not(:disabled){color:#fff;border-color:#fff}
@@ -825,7 +826,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.4.1";
+const APP_VERSION = "3.5.1";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];

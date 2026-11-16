@@ -76,7 +76,7 @@ To add a brand site:
 2. In Vercel, **Add New → Project**, import this same repo, and add two environment variables: `BRAND` = the brand id (e.g. `le`) and `FRED_API_KEY`.
 3. Deploy. Each project gets its own link and its own settings.
 
-Included brands: `mt` (default, dark terminal, amber) and `le` (LE Trading Academy, light theme, purple).
+Included brands: `mt` (default, dark terminal, amber), `le` (LE Trading Academy, light theme, purple) and `kt` (Kingdom Traders, deep navy with a purple frame and gold accents).
 
 ## Project layout
 

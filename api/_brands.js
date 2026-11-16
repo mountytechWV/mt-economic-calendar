@@ -11,6 +11,7 @@
 //   theme       "dark" or "light"
 //   accent      main brand color; accentHover is a slightly darker/lighter shade
 //   onAccent    text color on top of the accent (white for dark accents, black for light ones)
+//   vars        optional overrides for any theme color (CSS variables)
 //   chrome      optional colored frame {header, ticker, kpi, side} around a light calendar
 //   community   optional header button {label, url}
 //   credit      shown in Settings -> About (developer adds a second line)
@@ -57,6 +58,42 @@ const BRANDS = {
     developer: "Developed by MountyTech",
     developerUrl: "https://github.com/mountytechWV",
     defaults: { widgetDark: false },
+  },
+
+  kt: {
+    name: "Kingdom Traders Econ Calendar",
+    short: "KT Calendar",
+    mark: "KT",
+    logo: "/brands/kt/mark.png",  // crown + candlestick chart from the Kingdom Traders emblem
+    title: ["Kingdom", "Traders"],
+    sub: "Economic Calendar",
+    theme: "dark",
+    accent: "#E0B25C",            // Kingdom Gold
+    accentHover: "#F7DA94",       // Bright
+    onAccent: "#00051B",          // Deep Navy
+    background: "#3A1F6E",
+    // purple frame around a deep-navy calendar
+    chrome: { header: "#3A1F6E", ticker: "#2B1A5B", kpi: "#4A2A84", side: "#2B1A5B" },
+    vars: {
+      // Deep Navy calendar
+      "--bg": "#00051B", "--bg2": "#030A26", "--panel": "#06102E", "--panel2": "#0A1638",
+      "--line": "#141F45", "--line2": "#1F2C5A", "--line3": "#33407A",
+      "--text": "#E8E6F2", "--dim": "#9A9CC0", "--mute": "#5D6290", "--strong": "#FFFFFF",
+      "--top1": "#3A1F6E", "--top2": "#3A1F6E", "--bar-bg": "#030A26", "--thead": "#030A26",
+      "--rowline": "#111B3E", "--rowhover": "#081233", "--day1": "#1A1450", "--day2": "#06102E",
+      "--openbg": "rgba(74,42,132,.28)", "--detbg": "rgba(74,42,132,.22)", "--cyan": "#B79CFF",
+      "--chart-bar": "#3B2A78", "--chart-neg": "#5A2A40",
+      // frame accents: gold pops, navy fields
+      "--ch-pop": "#E0B25C", "--ch-on-pop": "#00051B", "--ch-hi": "#F7DA94",
+      "--ch-field": "rgba(0,5,27,.55)", "--ch-field-text": "#F2EFFA",
+    },
+    icons: { favicon: "/brands/kt/icon-192.png", i192: "/brands/kt/icon-192.png", i512: "/brands/kt/icon-512.png" },
+    community: null,
+    credit: "Kingdom Traders",
+    creditUrl: "",
+    developer: "Developed by MountyTech",
+    developerUrl: "https://github.com/mountytechWV",
+    defaults: {},
   },
 };
 

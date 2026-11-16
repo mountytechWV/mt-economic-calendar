@@ -19,6 +19,7 @@ module.exports = (req, res) => {
     st.setProperty("--ch-kpi", B.chrome.kpi);
     st.setProperty("--ch-side", B.chrome.side);
   }
+  if (B.vars) Object.keys(B.vars).forEach(function(k){ st.setProperty(k, B.vars[k]); });
   document.title = B.name;
   function link(rel, href){ var l = document.querySelector('link[rel="' + rel + '"]'); if (!l){ l = document.createElement("link"); l.rel = rel; document.head.appendChild(l); } l.href = href; }
   function meta(name, val){ var m = document.querySelector('meta[name="' + name + '"]'); if (!m){ m = document.createElement("meta"); m.name = name; document.head.appendChild(m); } m.content = val; }
