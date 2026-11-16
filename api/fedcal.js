@@ -18,7 +18,16 @@ function parse(html) {
   let part = start >= 0 ? html.slice(start, end > 0 ? start + end : undefined) : html;
   part = part
     .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<a\b[^>]*href\s*=\s*"([^"]+)"[^>]*>\s*Watch\s+Live\s*<\/a>/gi, "\n[[WATCH:$1]]\n")
+    // any link whose visible text says Watch Live / Webcast / Livestream, however it's marked up
+    .replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (m, attrs, inner) => {
+      const text = decode(inner.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+      const label = text + " " + (attrs.match(/(?:title|aria-label)\s*=\s*(["'])(.*?)\1/i) || [])[2];
+      if (!/watch\s*live|webcast|live\s*stream|livestream/i.test(label)) return m;
+      const hm = attrs.match(/href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+      let href = hm ? (hm[1] || hm[2] || hm[3] || "") : "";
+      if (href.startsWith("/")) href = "https://www.federalreserve.gov" + href;
+      return href ? `\n[[WATCH:${href}]]\n` : "\n";
+    })
     .replace(/<[^>]+>/g, "\n");
   const lines = decode(part).split(/\n+/).map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
 
@@ -38,6 +47,7 @@ function parse(html) {
     if (!cur || cur.day) return;
     const w = ln.match(/^\[\[WATCH:(.+)\]\]$/);
     if (w) { if (/^https?:\/\//i.test(w[1])) cur.watch = decode(w[1]); return; }
+    if (/^(watch\s*live|webcast|live\s*stream|livestream)$/i.test(ln)) return;   // never use the link text as a title
     if (/^\d{1,2}$/.test(ln)) { cur.day = +ln; return; }
     if (/^At\s/i.test(ln)) { cur.where = ln; return; }
     if (!cur.title && !TIME.test(ln)) cur.title = ln;
@@ -55,7 +65,13 @@ module.exports = async (req, res) => {
   try {
     const r = await fetch(url, { headers: { "User-Agent": "MT-Economic-Calendar (+https://github.com/mountytechWV)" } });
     if (!r.ok) throw new Error(`Fed calendar returned HTTP ${r.status}`);
-    const events = parse(await r.text());
+    const html = await r.text();
+    const events = parse(html);
+    if (req.query.debug) {   // /api/fedcal?ym=2026-11&debug=1 shows the raw markup around the first "Watch Live"
+      const i = html.search(/watch\s*live/i);
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ ok: true, source: url, events, sample: i >= 0 ? html.slice(Math.max(0, i - 500), i + 200) : null });
+    }
     res.setHeader("Cache-Control", "public, s-maxage=1800, stale-while-revalidate=7200");
     res.status(200).json({ ok: true, source: url, events });
   } catch (err) {
