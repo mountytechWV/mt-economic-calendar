@@ -64,16 +64,32 @@ Every push to `main` redeploys automatically. Without `FRED_API_KEY` the site st
 
 To preview the page without deploying, open `public/index.html` straight from disk: it runs with sample data.
 
+## Run it for another community (rebranding)
+
+One codebase can power several branded sites. Each Vercel project picks its look with the `BRAND` environment variable, and every push to GitHub updates all of them.
+
+Brands live in `api/_brands.js`. Each one sets the name, logo letters (or a logo image), header wordmark, light or dark theme, accent color, an optional community button (like a Discord invite), the About credit, and starting settings for new visitors.
+
+To add a brand site:
+1. Add an entry to `api/_brands.js` (copy `le` as a template) and put its icons in `public/brands/<id>/` (`icon-192.png`, `icon-512.png`, and optionally a square `logo.png`).
+2. In Vercel, **Add New → Project**, import this same repo, and add two environment variables: `BRAND` = the brand id (e.g. `le`) and `FRED_API_KEY`.
+3. Deploy. Each project gets its own link and its own settings.
+
+Included brands: `mt` (default, dark terminal, amber) and `le` (LE Trading Academy, light theme, purple).
+
 ## Project layout
 
 ```
 public/index.html       the terminal UI (HTML/CSS/JS)
 public/indicators.js    event descriptions, sources and FRED series mappings
-public/manifest.webmanifest  home-screen app settings and icons
 public/fonts/           bundled fonts (SIL OFL 1.1)
 api/calendar.js         relays the weekly calendar feed (cached)
 api/fred.js             relays FRED for the allowed series, keeps the key server-side (cached)
 api/fedcal.js           reads the Fed Board's monthly calendar for speech stream links (cached)
+api/brand.js            applies the site's brand (from BRAND) before the page draws
+api/manifest.js         home-screen app name and icons for the site's brand
+api/_brands.js          brand definitions
+public/brands/          per-brand icons and logos
 vercel.json             headers
 ```
 
