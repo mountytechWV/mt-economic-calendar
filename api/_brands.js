@@ -11,6 +11,7 @@
 //   theme       "dark" or "light"
 //   accent      main brand color; accentHover is a slightly darker/lighter shade
 //   onAccent    text color on top of the accent (white for dark accents, black for light ones)
+//   chrome      optional colored frame {header, ticker, kpi, side} around a light calendar
 //   community   optional header button {label, url}
 //   credit      shown in Settings -> About
 //   defaults    starting settings for new visitors (any key from the app's settings)
@@ -46,9 +47,11 @@ const BRANDS = {
     accent: "#6C3FDB",
     accentHover: "#5A2FC6",
     onAccent: "#FFFFFF",
-    background: "#FFFFFF",
+    background: "#5A2FC6",
+    // colored frame: header, ticker strip, KPI tiles and sidebar (the calendar stays white)
+    chrome: { header: "#5A2FC6", ticker: "#3E1D93", kpi: "#6C3FDB", side: "#4A27AA" },
     icons: { favicon: "/brands/le/icon-192.png", i192: "/brands/le/icon-192.png", i512: "/brands/le/icon-512.png" },
-    community: { label: "Join the free Discord", url: "https://letradingacademy.com/" },
+    community: { label: "Join the free Discord", url: "https://discord.gg/letradingacademy" },
     credit: "Brought to you by LE Trading Academy",
     creditUrl: "https://letradingacademy.com/",
     defaults: { widgetDark: false },

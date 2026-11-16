@@ -39,7 +39,7 @@
   --text:#14163D; --dim:#5B5F82; --mute:#9598B5;
   --up:#0B9A55; --down:#D6334A; --cyan:#4B5BD6; --hol:#9AA0B4; --hi:#E0414F; --med:#E09A00; --lo:#BFA72C;
   --up-rgb:11,154,85; --down-rgb:214,51,74; --on-up:#FFFFFF;
-  --top1:#FFFFFF; --top2:#FBFAFF; --bar-bg:#F6F4FC; --thead:#FAF9FE; --rowline:#EFECF7; --rowhover:#F7F5FE;
+  --top1:#FFFFFF; --top2:#FBFAFF; --bar-bg:#F6F4FC; --thead:#FAF9FE; --rowline:#DFD9EE; --rowhover:#F4F1FD;
   --day1:#EFEBFB; --day2:#FFFFFF; --openbg:#F3EFFE; --detbg:#FBFAFF; --strong:#0B0D2E; --tabhover:rgba(20,22,61,.03);
   --shadow:rgba(20,22,61,.14); --scrim:rgba(20,22,61,.25); --chart-bar:#CFC8EE; --chart-neg:#F2C3CA;
 }
@@ -471,6 +471,62 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
   .bell{opacity:.45}
   .bell.on,.bell.auto{opacity:1}
 }
+
+/* ================= brand chrome: colored frame around a light calendar ================= */
+:root[data-chrome="accent"]{ --ch-line:rgba(255,255,255,.16); --ch-text:#FFFFFF; --ch-dim:rgba(255,255,255,.74); --ch-mute:rgba(255,255,255,.5); --ch-panel:rgba(255,255,255,.10); --ch-hi:#FFE08A; }
+[data-chrome="accent"] .top{background:var(--ch-header);border-bottom-color:transparent;color:var(--ch-text)}
+[data-chrome="accent"] .brand{border-right-color:var(--ch-line)}
+[data-chrome="accent"] .brand .mark{background:#fff;color:var(--ch-header)}
+[data-chrome="accent"] .brand .name{color:#fff}
+[data-chrome="accent"] .brand .name span{color:var(--ch-hi)}
+[data-chrome="accent"] .brand .ver{color:var(--ch-dim)}
+[data-chrome="accent"] .tab{color:var(--ch-dim)}
+[data-chrome="accent"] .tab:hover{color:#fff;background:var(--ch-panel)}
+[data-chrome="accent"] .tab.on{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.14)}
+[data-chrome="accent"] .mkt,[data-chrome="accent"] .clock{background:var(--ch-panel);border-color:var(--ch-line);color:#fff}
+[data-chrome="accent"] .clock b{color:var(--ch-dim)}
+[data-chrome="accent"] .clock.home span{color:var(--ch-hi)}
+[data-chrome="accent"] .top .ib{background:var(--ch-panel);border-color:var(--ch-line);color:#fff}
+[data-chrome="accent"] .top .ib:hover{border-color:#fff;color:#fff;background:rgba(255,255,255,.18)}
+[data-chrome="accent"] .badge{background:#fff;color:var(--ch-header)}
+[data-chrome="accent"] .comm{background:#fff;color:var(--ch-header)}
+[data-chrome="accent"] .comm:hover{background:#F1ECFF}
+[data-chrome="accent"] .ticker{background:var(--ch-ticker);border-bottom-color:transparent;color:#fff}
+[data-chrome="accent"] .ticker .lbl{background:#fff;color:var(--ch-ticker)}
+[data-chrome="accent"] .tk .t{color:var(--ch-dim)}
+[data-chrome="accent"] .tk .c{color:var(--ch-hi)}
+[data-chrome="accent"] .tk .imp{background:#FF8A95}
+[data-chrome="accent"] .kpis{border-bottom-color:transparent}
+[data-chrome="accent"] .kpi{background:var(--ch-kpi);border-right-color:var(--ch-line);color:#fff}
+[data-chrome="accent"] .kpi h5{color:var(--ch-dim)}
+[data-chrome="accent"] .kpi .s{color:var(--ch-dim)}
+[data-chrome="accent"] .kpi.next .v{color:#fff}
+[data-chrome="accent"] .kpi.next .s{color:#fff}
+[data-chrome="accent"] .kpi .v.up{color:#8CF5C1}
+[data-chrome="accent"] .kpi .v.warn{color:var(--ch-hi)}
+[data-chrome="accent"] .kpi .v.down{color:#FFB3BA}
+[data-chrome="accent"] .kpi.click:hover{background:var(--ch-header)}
+[data-chrome="accent"] .side{background:var(--ch-side);border-right-color:transparent;color:#fff}
+[data-chrome="accent"] .side h4{color:#fff}
+[data-chrome="accent"] .sf>label{color:var(--ch-dim)}
+[data-chrome="accent"] .side .ddb{background:#fff;border-color:transparent;color:var(--text)}
+[data-chrome="accent"] .side .ddb:hover,[data-chrome="accent"] .side .dd.open .ddb{background:#fff;border-color:var(--ch-hi)}
+[data-chrome="accent"] .side .ddb .val{color:var(--text)}
+[data-chrome="accent"] .side .ddb .val.f{color:var(--amber);font-weight:600}
+[data-chrome="accent"] .side .search{background:#fff;border-color:transparent}
+[data-chrome="accent"] .side .search input{color:var(--text)}
+[data-chrome="accent"] .side .wbtn{background:#fff;border-color:transparent;color:var(--ch-side)}
+[data-chrome="accent"] .side .foot{background:rgba(0,0,0,.14);border-top-color:var(--ch-line)}
+[data-chrome="accent"] .side .dirtyln{color:var(--ch-dim)}
+[data-chrome="accent"] .side .dirtyln.on{color:var(--ch-hi)}
+[data-chrome="accent"] .side .primary{background:#fff;color:var(--ch-side)}
+[data-chrome="accent"] .side .primary:hover{background:#F1ECFF}
+[data-chrome="accent"] .side .primary:disabled{background:transparent;color:var(--ch-dim);border:1px solid var(--ch-line)}
+[data-chrome="accent"] .side .ghost{border-color:var(--ch-line);color:var(--ch-dim)}
+[data-chrome="accent"] .side .ghost:hover:not(:disabled){color:#fff;border-color:#fff}
+[data-chrome="accent"] .sidehead{background:var(--ch-header)!important;border-bottom-color:var(--ch-line)!important;color:#fff}
+[data-chrome="accent"] .side .ib{background:var(--ch-panel);border-color:var(--ch-line);color:#fff}
+@media (max-width:640px){ [data-chrome="accent"] .mkt{background:none;border:0} }
 </style>
 <script src="/api/brand"></script>
 </head>
@@ -686,7 +742,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.3.0";
+const APP_VERSION = "3.3.1";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
