@@ -105,10 +105,10 @@ svg{display:block}
 .side .btns{display:grid;grid-template-columns:1fr auto;gap:6px}
 .primary{height:38px;background:var(--amber);color:#000;font:700 13px var(--cond);letter-spacing:2px;text-transform:uppercase}
 .primary:hover{background:#FFC233}
-.primary:disabled{background:var(--panel2);color:var(--mute);cursor:default}
+.primary:disabled{background:var(--panel2);color:var(--dim);border:1px solid var(--line2);cursor:default}
 .ghost{height:38px;padding:0 12px;border:1px solid var(--line2);font:600 12px var(--cond);letter-spacing:1.6px;text-transform:uppercase;color:var(--dim)}
 .ghost:hover:not(:disabled){color:var(--text);border-color:#3A4B62}
-.ghost:disabled{opacity:.4;cursor:default}
+.ghost:disabled{opacity:.6;cursor:default}
 body.v-live .term-only{display:none}
 body:not(.v-live) .live-only{display:none}
 
@@ -271,6 +271,17 @@ tr.det td{padding:0;background:#0A0F16;border-bottom:1px solid var(--line2);whit
 .keyst{font:500 11.5px var(--mono);color:var(--mute);margin-top:6px}
 .keyst.ok{color:var(--up)} .keyst.bad{color:var(--down)}
 
+.c-ev .tag.watch{color:#04140B;background:var(--up);border-color:var(--up);cursor:pointer;font-weight:700}
+.c-ev .tag.watch:hover{filter:brightness(1.15)}
+.watchbox{display:flex;flex-direction:column;gap:10px}
+.watchbox .go{height:44px;display:flex;align-items:center;justify-content:center;gap:9px;background:var(--up);color:#04140B;font:700 14px var(--cond);letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:0}
+.watchbox .go:hover{filter:brightness(1.1)}
+.watchbox .go.alt{background:var(--panel2);color:var(--text);border:1px solid var(--line2)}
+.watchbox .go svg{width:15px;height:15px}
+.watchbox .what{font:500 12.5px/1.5 var(--sans);color:var(--text)}
+.watchbox .where{font:400 12px/1.5 var(--sans);color:var(--dim)}
+.watchbox .links{display:flex;gap:14px;flex-wrap:wrap;font:500 11.5px var(--mono)}
+
 /* live */
 .frame{flex:1;min-height:0;padding:12px 14px;display:flex;flex-direction:column}
 .frame .card{flex:1;min-height:0;border:1px solid var(--line2);background:#fff}
@@ -362,10 +373,12 @@ tr.det td{padding:0;background:#0A0F16;border-bottom:1px solid var(--line2);whit
   .ib.mob{display:grid!important}
   .badge:empty{display:none}
   .shell{grid-template-columns:1fr}
-  .side{position:fixed;top:0;bottom:0;left:0;width:min(320px,86vw);z-index:72;transform:translateX(-100%);transition:transform .2s ease;box-shadow:20px 0 50px rgba(0,0,0,.5);padding-top:var(--sat)}
+  .side{position:fixed;top:0;bottom:auto;height:100vh;height:100dvh;left:0;width:min(320px,86vw);z-index:72;transform:translateX(-100%);transition:transform .2s ease;box-shadow:20px 0 50px rgba(0,0,0,.5);padding-top:var(--sat)}
   .side.on{transform:none}
   .sidehead{align-items:center;justify-content:space-between;height:52px;padding:0 10px 0 16px;border-bottom:1px solid var(--line);background:var(--panel);font:700 16px var(--cond);letter-spacing:2.5px;text-transform:uppercase}
   .side .scroll h4:first-child{display:none}
+  .side .foot{padding-bottom:calc(14px + var(--sab))}
+  .side .dirtyln{font-size:12px}
   .kpis{grid-template-columns:1fr 1fr}
   .kpi{border-bottom:1px solid var(--line)}
   .kpi:nth-child(2n){border-right:0}
@@ -632,7 +645,8 @@ let NATIVE = false;
 let curView = "terminal";
 const EXP = new Set();              // expanded event keys
 const ACT = {};                     // event key -> {v, at}  actuals from FRED
-const FREDC = {};                   // "series|units" -> {t, r}
+const FREDC = {};
+const FEDCAL = {};                  // "YYYY-MM" -> [{day, time, last, speaker, title, where, watch}]                   // "series|units" -> {t, r}
 let FRED_STATE = "none";            // none | ok | bad
 let FRED_ERR = "";
 let autoTimer = null;
@@ -642,7 +656,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.1.1";
+const APP_VERSION = "3.2.0";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -673,6 +687,10 @@ const Backend = {
     if (LOCAL_FILE) return {ok:false, error:"Actuals load on the live site"};
     try { return await getJSON(`/api/fred?s=${encodeURIComponent(s)}&u=${encodeURIComponent(u)}`); }
     catch(e){ return {ok:false, error:e.message}; }
+  },
+  async fedcal(ym){
+    if (LOCAL_FILE) return {ok:false, events:[]};
+    try { return await getJSON(`/api/fedcal?ym=${ym}`); } catch(e){ return {ok:false, events:[], error:e.message}; }
   },
   async alertActual(item){ fireAlert(item, "actual"); },
   async popout(u){ window.open(u, "mtlive", "width=980,height=920"); }
@@ -877,7 +895,7 @@ function renderTable(){
       <td class="c-time">${allDay ? "ALL DAY" : hhmm(e._d,tz)}</td>
       <td class="c-cur"><span class="cur">${esc(e.country)}</span></td>
       <td class="c-imp">${impBars(e.impact)}</td>
-      <td class="c-ev" title="${esc(e.title)}">${esc(e.title)}${isSpeech(e.title)?'<span class="tag">SPEECH</span>':""}${e.impact==="Holiday"?'<span class="tag">HOLIDAY</span>':""}<span class="chev">▶</span></td>
+      <td class="c-ev" title="${esc(e.title)}">${esc(e.title)}${isSpeech(e.title)?'<span class="tag">SPEECH</span>':""}${(() => { const f = now - t < 2*3600e3 && fedFor(e); return f && f.watch ? `<a class="tag watch" data-open="${esc(f.watch)}" title="Watch live: ${esc(f.where || f.speaker)}">▶ WATCH</a>` : ""; })()}${e.impact==="Holiday"?'<span class="tag">HOLIDAY</span>':""}<span class="chev">▶</span></td>
       <td class="num c-num act ${actClass(e)}" data-l="Act">${av ? esc(av) + (!e.actual ? '<span class="src" title="Actual from FRED">FRED</span>' : "") : noAct}</td>
       <td class="num c-num" data-l="Fcst">${fcCell(e)}</td>
       <td class="num c-num" data-l="Prev">${e.previous ? esc(e.previous) : '<span class="muted">—</span>'}</td>
@@ -887,6 +905,57 @@ function renderTable(){
   $("#tb").innerHTML = html;
   fillCharts();
   return rows;
+}
+
+/* ====================================================================== */
+/*  Fed speeches: watch links from the Fed Board's public calendar        */
+/* ====================================================================== */
+const ymET = d => dayKey(d, "America/New_York").slice(0, 7);
+const STOPW = new Set(["fed","fomc","member","chair","chairman","chairwoman","vice","governor","supervision","president","speaks","testifies","speech","the","for","and","of"]);
+const tmin = t => { const m = String(t).match(/(\d{1,2}):(\d{2})\s*([ap])/i); return m ? (+m[1] % 12 + (m[3].toLowerCase() === "p" ? 12 : 0)) * 60 + +m[2] : null; };
+async function loadFedcal(){
+  const months = [...new Set(EVENTS.filter(e => e.country === "USD" && isSpeech(e.title)).map(e => ymET(e._d)))];
+  let got = false;
+  for (const ym of months){
+    if (FEDCAL[ym]) continue;
+    const r = await Backend.fedcal(ym);
+    if (r && r.ok){ FEDCAL[ym] = r.events || []; got = true; }
+  }
+  if (got) renderAll();
+}
+function fedFor(e){
+  if (e.country !== "USD" || !isSpeech(e.title)) return null;
+  const list = FEDCAL[ymET(e._d)]; if (!list) return null;
+  const day = +dayKey(e._d, "America/New_York").slice(8);
+  const words = e.title.split(/[^A-Za-z'-]+/).map(w => w.toLowerCase()).filter(w => w.length > 2 && !STOPW.has(w));
+  const hits = list.filter(x => x.day === day && words.includes(String(x.last).toLowerCase()));
+  if (!hits.length) return null;
+  const p = fmt("America/New_York",{hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(e._d);
+  const em = (+p.find(x => x.type === "hour").value % 24) * 60 + +p.find(x => x.type === "minute").value;
+  return hits.sort((a, b) => Math.abs((tmin(a.time) ?? em) - em) - Math.abs((tmin(b.time) ?? em) - em))[0];
+}
+const speakerName = e => e.title.replace(/\b(speaks|testifies)\b.*$/i, "").replace(/\b(fomc member|fed|fomc)\b/ig, "").trim();
+const ytSearch = e => "https://www.youtube.com/results?search_query=" + encodeURIComponent(speakerName(e) + " speech live") + "&sp=EgJAAQ%253D%253D";
+const fedCalUrl = e => { const [y, m] = ymET(e._d).split("-"); return `https://www.federalreserve.gov/newsevents/${y}-${["January","February","March","April","May","June","July","August","September","October","November","December"][+m-1]}.htm`; };
+function watchHTML(e){
+  const f = fedFor(e);
+  const play = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>`;
+  let h = `<h5>Watch / listen</h5><div class="watchbox">`;
+  if (f && f.watch){
+    h += `<a class="go" data-open="${esc(f.watch)}">${play}Watch live</a>`;
+    if (f.title) h += `<div class="what">${esc(f.type)}: <b>${esc(f.title)}</b> · ${esc(f.speaker)}</div>`;
+    if (f.where) h += `<div class="where">${esc(f.where)}</div>`;
+  } else if (f){
+    if (f.title) h += `<div class="what">${esc(f.type)}: <b>${esc(f.title)}</b> · ${esc(f.speaker)}</div>`;
+    if (f.where) h += `<div class="where">${esc(f.where)}</div>`;
+    h += `<div class="where">The Fed hasn't posted a stream for this one. Hosts sometimes stream it on their own site or YouTube.</div>`;
+    h += `<a class="go alt" data-open="${esc(ytSearch(e))}">${play}Search YouTube live</a>`;
+  } else {
+    h += `<div class="where">Board members' streams are listed on the Fed's calendar. Regional Fed presidents stream on their own bank's site or YouTube.</div>`;
+    h += `<a class="go alt" data-open="${esc(ytSearch(e))}">${play}Search YouTube live</a>`;
+  }
+  h += `<div class="links"><a class="lk" data-open="${esc(fedCalUrl(e))}">Fed calendar ↗</a></div></div>`;
+  return h;
 }
 
 /* ====================================================================== */
@@ -928,7 +997,7 @@ function detailHTML(e){
         <button data-live="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>Live tab</button>
       </div>
     </div>
-    <div class="chart" data-chart="${esc(e._k)}">${chartShell(e, I)}</div>
+    ${e.country === "USD" && isSpeech(e.title) ? `<div class="chart">${watchHTML(e)}</div>` : `<div class="chart" data-chart="${esc(e._k)}">${chartShell(e, I)}</div>`}
   </div>`;
 }
 function chartShell(e, I){
@@ -1239,9 +1308,10 @@ function syncControls(){
     if (el.tagName === "SELECT") el.value = String(v); else el.classList.toggle("on", !!v);
   });
   const nf = Object.keys(DROPS).filter(id => $("#" + id).closest(".term-only") && !DROPS[id].cfg.isDefault(DROPS[id].cfg.get().map(String))).length + ($("#q").value.trim() ? 1 : 0);
-  $("#filtBadge").textContent = nf ? nf : "";
+  $("#filtBadge").textContent = isDirty() ? "●" : nf ? nf : "";
   const d = isDirty();
   $("#saveBtn").disabled = !d; $("#undoBtn").disabled = !d;
+  $("#saveBtn").textContent = d ? "Save as default" : "✓ Saved as default";
   $("#dirtyln").classList.toggle("on", d);
   $("#dirtyln").textContent = d ? "● Unsaved filter changes" : "✓ Defaults saved";
 }
@@ -1292,7 +1362,7 @@ function wire(){
   $("#tb").onclick = e => {
     const b = e.target.closest(".bell, [data-bell]");
     if (b){ e.stopPropagation(); toggleAlert(b.dataset.k || b.dataset.bell); return; }
-    const o = e.target.closest("[data-open]"); if (o){ Backend.open(o.dataset.open); return; }
+    const o = e.target.closest("[data-open]"); if (o){ e.stopPropagation(); Backend.open(o.dataset.open); return; }
     if (e.target.closest("[data-live]")){ setView("live"); return; }
     if (e.target.closest("[data-settings]")){ openDrawer(true); return; }
     if (e.target.closest("tr.det")) return;
@@ -1362,7 +1432,7 @@ async function refresh(force){
     if (force && r.status === "cached") toast("Up to date · feed refreshes every 10 min");
   } catch(err){ FEED = {status:"offline", error:String(err)}; }
   b.classList.remove("spin");
-  pruneAlerts(); renderAll(); syncSchedule(); pollActuals();
+  pruneAlerts(); renderAll(); syncSchedule(); pollActuals(); loadFedcal();
   if (curView === "live" && force) renderLive(true);
 }
 function scheduleAuto(){ clearInterval(autoTimer); if (S.autoRefreshMin > 0) autoTimer = setInterval(() => refresh(false), S.autoRefreshMin*60e3); }

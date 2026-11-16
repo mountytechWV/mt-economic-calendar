@@ -10,6 +10,7 @@ A Wall Street style **US economic calendar** that runs in the browser. Countdown
 - Week-at-a-glance table grouped by day, with impact bars, forecast vs previous arrows and a live T-minus countdown on every event
 - KPI strip: next high-impact countdown, high-impact count for the week, alerts armed, feed status
 - Sidebar dropdown filters: Range, Impact, Currency, Category, Show, plus search
+- **▶ WATCH** button on Fed speeches that have a live stream (from the Fed Board's calendar)
 - **Click any event** to expand it: what it measures, how markets read it, the source agency with a link to the official release, actual vs forecast vs previous, and a chart of the last 24 releases
 - **Actuals** for the major US releases (CPI, PPI, PCE, payrolls, unemployment, claims, retail sales, GDP, housing, industrial production, durable goods, Empire State, Philly Fed and more), colored green or red against the forecast
 
@@ -42,6 +43,7 @@ This site does not scrape anything.
 |---|---|---|
 | Calendar (Terminal) | [Fair Economy](https://www.faireconomy.media/) public weekly feed, the same feed behind Forex Factory's calendar export | Current week. Relayed through `/api/calendar` and cached for 10 minutes so the feed is requested rarely. |
 | Actuals & history | [FRED®](https://fred.stlouisfed.org/), Federal Reserve Bank of St. Louis | Relayed through `/api/fred` with the site's key; visitors never need one. FRED usually posts within minutes of a release, and the site only shows a number once FRED has updated the series after the release time. Licensed surveys (ISM, UMich, NAHB, Conference Board) are not available. |
+| Fed speech streams | [Federal Reserve Board calendar](https://www.federalreserve.gov/newsevents/calendar.htm) | Public US government page, read through `/api/fedcal` and cached 30 minutes. Adds a ▶ WATCH button to Board members' speeches when the Fed lists a stream. Regional Fed presidents get a YouTube live search instead. |
 | Live view | [Investing.com](https://www.investing.com/webmaster-tools) embeddable economic calendar widget | Shown with Investing.com's attribution. Fastest place to see an actual print. |
 
 This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis. By using this site you agree to the [FRED® API Terms of Use](https://fred.stlouisfed.org/docs/api/terms_of_use.html).
@@ -71,6 +73,7 @@ public/manifest.webmanifest  home-screen app settings and icons
 public/fonts/           bundled fonts (SIL OFL 1.1)
 api/calendar.js         relays the weekly calendar feed (cached)
 api/fred.js             relays FRED for the allowed series, keeps the key server-side (cached)
+api/fedcal.js           reads the Fed Board's monthly calendar for speech stream links (cached)
 vercel.json             headers
 ```
 
