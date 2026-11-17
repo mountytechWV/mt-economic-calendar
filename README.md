@@ -6,34 +6,31 @@ A Wall Street style **US economic calendar** that runs in the browser. Countdown
 
 ## Features
 
-**Terminal view** (`T`)
-- Week-at-a-glance table grouped by day, with impact bars, forecast vs previous arrows and a live T-minus countdown on every event
-- KPI strip: next high-impact countdown, high-impact count for the week, alerts armed, feed status
-- Sidebar dropdown filters: Range, Impact, Currency, Category, Show, plus search
-- **▶ WATCH** button on Fed speeches that have a live stream (from the Fed Board's calendar)
-- **Click any event** to expand it: what it measures, how markets read it, the source agency with a link to the official release, actual vs forecast vs previous, and a chart of the last 24 releases
-- **Actuals** for the major US releases (CPI, PPI, PCE, payrolls, unemployment, claims, retail sales, GDP, housing, industrial production, durable goods, Empire State, Philly Fed and more), colored green or red against the forecast
-
-**Alerts** (`A`)
-- Hover any row and click its bell, or turn on *Auto-alert every high-impact event*
-- A heads-up before release (1 to 30 min), an alert at release, and an alert when the actual posts
-- In-page banner and sound, plus optional desktop notifications while the tab is in the background
-
-**Live view** (`L`, the default screen)
-- **Watch / listen** list in the sidebar: this week's Fed speeches, press conferences and testimony, with ▶ WATCH when the Fed posts a stream and a YouTube live search otherwise
-- **Set alerts** list in the sidebar: every upcoming release with a bell, so alerts can be armed while reading the complete Investing.com calendar
-- Investing.com's official live calendar widget, US-only, with actuals that print in real time
+**Live calendar**
+- Investing.com's official live calendar widget, US-only, with every event, forecast and actual as it prints
 - Today / this week, importance filter, dark or light, and a pop-out window
 
-**Settings and defaults**
-- Gear icon: alerts, time zone, view to open on, auto refresh, compact rows. These save automatically.
-- **Save as default** at the bottom of the sidebar saves your filters (**Undo** reverts unsaved changes). **Reset to factory** in Settings undoes everything.
-- **Install as an app** (top of Settings): step-by-step help for iPhone/iPad, Android and PC/Mac, opened on the visitor's device, plus a one-click Install button where Chrome or Edge allows it
-- Keyboard: `R` refresh · `T` / `L` views · `A` alerts · `/` search · `Ctrl+S` save defaults
+**Dashboard panel** (right of the calendar)
+- Next high-impact countdown, high-impact count for the week, alerts armed, feed status
+- **Markets board** from TradingView's free widget: Dow, Nasdaq 100, S&P 500, VIX, SPY, QQQ, IWM, TLT, ES/NQ/YM e-minis, crude, gold, 2Y and 10Y yields, 10Y T-note futures and the dollar index
+- High-impact ticker across the top, world clocks and NYSE session status
+
+**Sidebar** (collapsible sections, closed until you open them)
+- **Set alerts:** upcoming releases (High / High + Med / All), click to arm or remove an alert
+- **Watch / listen:** this week's Fed speeches, press conferences and testimony, with ▶ WATCH when the Fed posts a stream and a YouTube live search otherwise
+
+**Alerts** (`A`)
+- A heads-up before release (1 to 30 min), an alert at release, and an alert when the actual posts (major releases, via FRED)
+- Optional *Auto-alert every high-impact event*
+- In-page banner and sound, plus optional desktop notifications while the tab is in the background
+
+**Settings**
+- Gear icon: install help, alerts, time zone, auto refresh. These save automatically.
+- **Install as an app:** step-by-step help for iPhone/iPad, Android and PC/Mac, plus a one-click Install button where Chrome or Edge allows it
+- Keyboard: `R` refresh · `A` alerts · `Ctrl+S` save defaults
 
 **On phones**
-- Same link, rearranged for small screens: filters slide out from the Filters button, events become two-line cards, and tapping a card opens the detail panel
-- Add it to your home screen (Safari: Share → Add to Home Screen; Chrome: ⋮ → Add to Home screen) and it opens full-screen like an app
+- Same link, stacked for small screens: tiles, then the calendar, then markets; the sidebar slides out from the menu button
 - Phones freeze web pages when you switch apps or lock the screen, so alerts only fire while the page is on screen. Use a computer for background alerts.
 
 Everything you set is stored in your own browser. There are no accounts and the site collects nothing.
@@ -44,10 +41,11 @@ This site does not scrape anything.
 
 | What | Source | Notes |
 |---|---|---|
-| Calendar (Terminal) | [Fair Economy](https://www.faireconomy.media/) public weekly feed, the same feed behind Forex Factory's calendar export | Current week. Relayed through `/api/calendar` and cached for 10 minutes so the feed is requested rarely. |
+| Alert schedule, countdowns, ticker | [Fair Economy](https://www.faireconomy.media/) public weekly feed, the same feed behind Forex Factory's calendar export | Current week. Relayed through `/api/calendar` and cached for 10 minutes so the feed is requested rarely. |
 | Actuals & history | [FRED®](https://fred.stlouisfed.org/), Federal Reserve Bank of St. Louis | Relayed through `/api/fred` with the site's key; visitors never need one. FRED usually posts within minutes of a release, and the site only shows a number once FRED has updated the series after the release time. Licensed surveys (ISM, UMich, NAHB, Conference Board) are not available. |
 | Fed speech streams | [Federal Reserve Board calendar](https://www.federalreserve.gov/newsevents/calendar.htm) | Public US government page, read through `/api/fedcal` and cached 30 minutes. Adds a ▶ WATCH button to Board members' speeches when the Fed lists a stream. Regional Fed presidents get a YouTube live search instead. |
-| Live view | [Investing.com](https://www.investing.com/webmaster-tools) embeddable economic calendar widget | Shown with Investing.com's attribution. Fastest place to see an actual print. |
+| Markets board | [TradingView](https://www.tradingview.com/widget/) free Market Quotes widget | Embedded with TradingView's attribution. Futures and some quotes are delayed. |
+| Live calendar | [Investing.com](https://www.investing.com/webmaster-tools) embeddable economic calendar widget | Shown with Investing.com's attribution. Fastest place to see an actual print. |
 
 This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis. By using this site you agree to the [FRED® API Terms of Use](https://fred.stlouisfed.org/docs/api/terms_of_use.html).
 
