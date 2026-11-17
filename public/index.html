@@ -346,6 +346,59 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 .mcard .primary{width:100%;height:42px}
 :root[data-theme="light"] .mcard{background:#fff}
 
+.la-tools{margin-bottom:8px}
+.seg2{display:grid;grid-template-columns:1fr 1.3fr 1fr;border:1px solid var(--line2)}
+.seg2 button{padding:6px 2px;font:600 11px var(--cond);letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);border-right:1px solid var(--line2)}
+.seg2 button:last-child{border-right:0}
+.seg2 button.on{background:var(--amber);color:var(--on-accent)}
+.la-list{max-height:min(52vh,520px);overflow-y:auto;border:1px solid var(--line2);background:var(--panel)}
+.la-day{position:sticky;top:0;z-index:1;padding:5px 9px;font:700 10.5px var(--cond);letter-spacing:1.8px;text-transform:uppercase;color:var(--dim);background:var(--panel2);border-bottom:1px solid var(--line)}
+.la-day.today{color:var(--amber)}
+.la-row{display:grid;grid-template-columns:24px 40px 16px 1fr;align-items:center;gap:6px;padding:6px 8px 6px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.la-row:hover{background:var(--panel2)}
+.la-row .t{font:500 11.5px var(--mono);color:var(--dim)}
+.la-row .n{font:500 12px/1.3 var(--sans);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.la-row .bell{opacity:1;width:22px;height:22px;color:var(--mute)}
+.la-row.armed .bell{color:var(--amber)}
+.la-row.armed .bell svg{fill:var(--amber)}
+.la-row.armed .n{color:var(--strong);font-weight:600}
+.la-row .bars{transform:scale(.85)}
+.la-empty{padding:14px 10px;font:400 12px/1.5 var(--sans);color:var(--dim)}
+.la-note{margin-top:6px;font:400 11px/1.45 var(--sans);color:var(--mute)}
+[data-chrome="accent"]{ --ch-field-hi:var(--amber); }
+[data-chrome="accent"] .la-list{background:var(--ch-field);border-color:transparent}
+[data-chrome="accent"] .la-day{background:rgba(var(--accent-rgb),.12);color:var(--ch-field-text);opacity:.85;border-bottom-color:rgba(var(--accent-rgb),.18)}
+[data-chrome="accent"] .la-day.today{color:var(--ch-field-hi);opacity:1}
+[data-chrome="accent"] .la-row{border-bottom-color:rgba(var(--accent-rgb),.14)}
+[data-chrome="accent"] .la-row:hover{background:rgba(var(--accent-rgb),.08)}
+[data-chrome="accent"] .la-row .t{color:var(--ch-field-text);opacity:.65}
+[data-chrome="accent"] .la-row .n{color:var(--ch-field-text)}
+[data-chrome="accent"] .la-row .bell{color:var(--ch-field-text);opacity:.45}
+[data-chrome="accent"] .la-row.armed .bell{color:var(--ch-field-hi);opacity:1}
+[data-chrome="accent"] .la-row.armed .bell svg{fill:var(--ch-field-hi)}
+[data-chrome="accent"] .la-row.armed .n{color:var(--ch-field-hi)}
+[data-chrome="accent"] .seg2{border-color:var(--ch-line)}
+[data-chrome="accent"] .seg2 button{color:var(--ch-dim);border-right-color:var(--ch-line)}
+[data-chrome="accent"] .seg2 button.on{background:var(--ch-pop);color:var(--ch-on-pop)}
+:root[data-theme="light"]:not([data-chrome]) .la-list{background:#fff}
+
+.wl-list{max-height:min(34vh,320px)}
+.wl-row{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:6px;padding:7px 8px;border-bottom:1px solid var(--line)}
+.wl-row .t{font:500 11.5px var(--mono);color:var(--dim)}
+.wl-row .n{font:500 12px/1.3 var(--sans);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wl-row .n small{display:block;font:600 9.5px var(--cond);letter-spacing:1.2px;color:var(--mute);text-transform:uppercase}
+.wl-row.now .t{color:var(--up);font-weight:700}
+.wl-btn{height:24px;padding:0 8px;display:flex;align-items:center;gap:4px;font:700 10.5px var(--cond);letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;cursor:pointer;border:1px solid var(--line2);color:var(--dim);background:transparent}
+.wl-btn svg{width:10px;height:10px}
+.wl-btn.fed{background:var(--up);border-color:var(--up);color:var(--on-up)}
+.wl-btn:hover{filter:brightness(1.12)}
+[data-chrome="accent"] .wl-row{border-bottom-color:rgba(var(--accent-rgb),.14)}
+[data-chrome="accent"] .wl-row .t{color:var(--ch-field-text);opacity:.65}
+[data-chrome="accent"] .wl-row.now .t{color:var(--up);opacity:1}
+[data-chrome="accent"] .wl-row .n{color:var(--ch-field-text)}
+[data-chrome="accent"] .wl-row .n small{color:var(--ch-field-text);opacity:.55}
+[data-chrome="accent"] .wl-btn:not(.fed){color:var(--ch-field-text);border-color:rgba(var(--accent-rgb),.35)}
+
 /* live */
 .frame{flex:1;min-height:0;padding:12px 14px;display:flex;flex-direction:column}
 .frame .card{flex:1;min-height:0;border:1px solid var(--line2);background:#fff}
@@ -621,6 +674,16 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
       <div class="sf term-only"><label>Show</label><div class="dd" id="ddShow"></div></div>
       <div class="sf term-only"><label>Search</label><div class="search"><span>›</span><input id="q" placeholder="CPI, FOMC, payrolls…  ( / )" spellcheck="false"></div></div>
 
+      <h4 class="live-only">Set alerts</h4>
+      <div class="sf live-only">
+        <div class="la-tools"><div class="seg2" id="laImp"><button data-v="high">High</button><button data-v="med">High + Med</button><button data-v="all">All</button></div></div>
+        <div class="la-list" id="liveAlerts"></div>
+      </div>
+      <h4 class="live-only">Watch / listen</h4>
+      <div class="sf live-only">
+        <div class="la-list wl-list" id="liveWatch"></div>
+        <div class="la-note">Green ▶ WATCH = stream posted by the Fed. YouTube = search for a live stream.</div>
+      </div>
       <h4 class="live-only">Live widget</h4>
       <div class="sf live-only"><label>Range</label><div class="dd" id="ddWCal"></div></div>
       <div class="sf live-only"><label>Importance</label><div class="dd" id="ddWImp"></div></div>
@@ -826,7 +889,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "3.5.1";
+const APP_VERSION = "3.6.1";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -869,7 +932,7 @@ function fallbackDefaults(){
   return Object.assign(baseDefaults(), (window.BRAND && window.BRAND.defaults) || {});
 }
 function baseDefaults(){
-  return {view:"terminal",timezone:"America/New_York",currencies:["USD"],impacts:["High","Medium","Holiday"],
+  return {view:"live",laLevel:"med",timezone:"America/New_York",currencies:["USD"],impacts:["High","Medium","Holiday"],
     range:"week",categories:[],hidePast:false,hideSpeeches:false,compact:false,autoRefreshMin:15,onTop:false,
     widgetCalType:"week",widgetImportance:[1,2,3],widgetDark:true,
     alertLead:5,alertAtRelease:true,alertAutoHigh:false,alertSound:true,alertNative:false,alertActual:true};
@@ -1574,6 +1637,9 @@ function wire(){
     renderAll();
   };
   $("#stFred").onclick = () => openDrawer(true);
+  $("#liveWatch").onclick = e => { const o = e.target.closest("[data-open]"); if (o) Backend.open(o.dataset.open); };
+  $("#liveAlerts").onclick = e => { const r = e.target.closest(".la-row"); if (r) toggleAlert(r.dataset.k); };
+  $("#laImp").onclick = e => { const b = e.target.closest("button"); if (b) setPref("laLevel", b.dataset.v); };
   $$(".htabs button").forEach(b => b.onclick = () => showHelpTab(b.dataset.p));
   $("#mobOk").onclick = () => { LS.set("mtec_mobile_alert_ok", true); $("#mobModal").hidden = true; };
   $("#instNow").onclick = async () => { if (!INSTALL_EVT) return; INSTALL_EVT.prompt(); try { await INSTALL_EVT.userChoice; } catch(e){} INSTALL_EVT = null; syncInstall(); };
@@ -1644,7 +1710,40 @@ async function refresh(force){
   if (curView === "live" && force) renderLive(true);
 }
 function scheduleAuto(){ clearInterval(autoTimer); if (S.autoRefreshMin > 0) autoTimer = setInterval(() => refresh(false), S.autoRefreshMin*60e3); }
-function renderAll(){ if (!S) return; const rows = renderTable(); renderKpis(rows); renderTicker(); if ($("#alertPop").classList.contains("open")) renderAlertsPop(); }
+function renderLiveAlerts(){
+  const box = $("#liveAlerts"); if (!box || !S) return;
+  const tz = S.timezone, now = Date.now(), lvl = S.laLevel || "med";
+  const ok = {high:["High"], med:["High","Medium"], all:["High","Medium","Low"]}[lvl] || ["High","Medium"];
+  $$("#laImp button").forEach(b => b.classList.toggle("on", b.dataset.v === lvl));
+  const list = EVENTS.filter(e => S.currencies.includes(e.country) && ok.includes(e.impact) && e._d.getTime() > now - 60e3);
+  if (!list.length){ box.innerHTML = `<div class="la-empty">${EVENTS.length ? "No more releases at this level this week." : "Loading the schedule…"}</div>`; return; }
+  const today = dayKey(new Date(), tz); let last = "", h = "";
+  list.forEach(e => {
+    const k = dayKey(e._d, tz);
+    if (k !== last){ last = k; h += `<div class="la-day ${k === today ? "today" : ""}">${fmt(tz,{weekday:"short",month:"short",day:"numeric"}).format(e._d)}${k === today ? " · Today" : ""}</div>`; }
+    const st = alertState(e);
+    h += `<div class="la-row ${st ? "armed" : ""}" data-k="${esc(e._k)}" title="${esc(e.title)}${st ? " · alert armed" : " · click to set an alert"}">
+      <span class="bell ${st}">${BELL}</span><span class="t">${hhmm(e._d, tz)}</span>${impBars(e.impact)}<span class="n">${esc(e.title)}</span></div>`;
+  });
+  const keep = box.scrollTop; box.innerHTML = h; box.scrollTop = keep;
+}
+function renderLiveWatch(){
+  const box = $("#liveWatch"); if (!box || !S) return;
+  const tz = S.timezone, now = Date.now();
+  const list = EVENTS.filter(e => e.country === "USD" && isSpeech(e.title) && e._d.getTime() > now - 2*3600e3);
+  if (!list.length){ box.innerHTML = `<div class="la-empty">${EVENTS.length ? "No speeches or press conferences left this week." : "Loading the schedule…"}</div>`; return; }
+  const play = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>`;
+  box.innerHTML = list.map(e => {
+    const t = e._d.getTime(), live = now >= t && now - t < 2*3600e3, f = fedFor(e);
+    const day = dayKey(e._d, tz) === dayKey(new Date(), tz) ? "Today" : fmt(tz,{weekday:"short"}).format(e._d);
+    const btn = f && f.watch
+      ? `<a class="wl-btn fed" data-open="${esc(f.watch)}" title="${esc(f.where || "Watch live")}">${play}Watch</a>`
+      : `<a class="wl-btn" data-open="${esc(ytSearch(e))}" title="Search YouTube for a live stream">${play}YouTube</a>`;
+    return `<div class="wl-row ${live ? "now" : ""}"><span class="t">${live ? "LIVE" : hhmm(e._d, tz)}</span>
+      <span class="n" title="${esc(e.title)}">${esc(speakerName(e) || e.title)}<small>${day}${f && f.title ? " · " + esc(f.title) : ""}</small></span>${btn}</div>`;
+  }).join("");
+}
+function renderAll(){ if (!S) return; const rows = renderTable(); renderKpis(rows); renderTicker(); renderLiveAlerts(); renderLiveWatch(); if ($("#alertPop").classList.contains("open")) renderAlertsPop(); }
 function normalize(s){
   const d = DEFAULTS || fallbackDefaults();
   const o = Object.assign({}, d, s || {});

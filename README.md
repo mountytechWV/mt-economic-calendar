@@ -19,7 +19,9 @@ A Wall Street style **US economic calendar** that runs in the browser. Countdown
 - A heads-up before release (1 to 30 min), an alert at release, and an alert when the actual posts
 - In-page banner and sound, plus optional desktop notifications while the tab is in the background
 
-**Live view** (`L`)
+**Live view** (`L`, the default screen)
+- **Watch / listen** list in the sidebar: this week's Fed speeches, press conferences and testimony, with ▶ WATCH when the Fed posts a stream and a YouTube live search otherwise
+- **Set alerts** list in the sidebar: every upcoming release with a bell, so alerts can be armed while reading the complete Investing.com calendar
 - Investing.com's official live calendar widget, US-only, with actuals that print in real time
 - Today / this week, importance filter, dark or light, and a pop-out window
 

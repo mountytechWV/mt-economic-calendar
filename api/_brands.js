@@ -85,7 +85,7 @@ const BRANDS = {
       "--chart-bar": "#3B2A78", "--chart-neg": "#5A2A40",
       // frame accents: gold pops, navy fields
       "--ch-pop": "#E0B25C", "--ch-on-pop": "#00051B", "--ch-hi": "#F7DA94",
-      "--ch-field": "rgba(0,5,27,.55)", "--ch-field-text": "#F2EFFA",
+      "--ch-field": "rgba(0,5,27,.55)", "--ch-field-text": "#F2EFFA", "--ch-field-hi": "#F7DA94",
     },
     icons: { favicon: "/brands/kt/icon-192.png", i192: "/brands/kt/icon-192.png", i512: "/brands/kt/icon-512.png" },
     community: null,
