@@ -936,7 +936,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "4.0.1";
+const APP_VERSION = "4.0.2";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -1808,9 +1808,13 @@ const MARKETS = [
     {name:"NASDAQ:SHY", displayName:"SHY (1-3 yr Treasuries)"},
     {name:"AMEX:UUP", displayName:"UUP (US Dollar)"}]}
 ];
+// Test switch: add ?mkt=bats to the address to try Cboe BZX (free real-time) ETF symbols
+const MKT_TEST = new URLSearchParams(location.search).get("mkt") === "bats";
+if (MKT_TEST) MARKETS.forEach(g => g.symbols.forEach(x => { x.name = x.name.replace(/^(AMEX|NASDAQ):/, "BATS:"); }));
 function loadMarkets(){
   const box = $("#mktWidget"); if (!box || box.dataset.done) return;
   box.dataset.done = "1";
+  if (MKT_TEST) $(".mkh small").textContent = "TEST MODE · ETFs from Cboe BZX (BATS)";
   const light = document.documentElement.dataset.theme === "light";
   box.innerHTML = `<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
     <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div></div>`;
