@@ -12,7 +12,7 @@ A Wall Street style **US economic calendar** that runs in the browser. Countdown
 
 **Dashboard panel** (right of the calendar)
 - Next high-impact countdown, high-impact count for the week, alerts armed, feed status
-- **Markets board** from TradingView's free widget: Dow, Nasdaq 100, S&P 500, VIX, SPY, QQQ, IWM, TLT, ES/NQ/YM e-minis, crude, gold, 2Y and 10Y yields, 10Y T-note futures and the dollar index
+- **Markets board** from TradingView's free widget: Dow, Nasdaq 100 and S&P 500 (near-24h prices that track the futures), SPY, QQQ, IWM, DIA, crude, gold, the 10Y T-note, TLT, IEF, SHY and UUP. Exchange futures, VIX, yields and DXY are not allowed in TradingView's free widgets
 - High-impact ticker across the top, world clocks and NYSE session status
 
 **Sidebar** (collapsible sections, closed until you open them)
@@ -44,7 +44,7 @@ This site does not scrape anything.
 | Alert schedule, countdowns, ticker | [Fair Economy](https://www.faireconomy.media/) public weekly feed, the same feed behind Forex Factory's calendar export | Current week. Relayed through `/api/calendar` and cached for 10 minutes so the feed is requested rarely. |
 | Actuals & history | [FRED®](https://fred.stlouisfed.org/), Federal Reserve Bank of St. Louis | Relayed through `/api/fred` with the site's key; visitors never need one. FRED usually posts within minutes of a release, and the site only shows a number once FRED has updated the series after the release time. Licensed surveys (ISM, UMich, NAHB, Conference Board) are not available. |
 | Fed speech streams | [Federal Reserve Board calendar](https://www.federalreserve.gov/newsevents/calendar.htm) | Public US government page, read through `/api/fedcal` and cached 30 minutes. Adds a ▶ WATCH button to Board members' speeches when the Fed lists a stream. Regional Fed presidents get a YouTube live search instead. |
-| Markets board | [TradingView](https://www.tradingview.com/widget/) free Market Quotes widget | Embedded with TradingView's attribution. Futures and some quotes are delayed. |
+| Markets board | [TradingView](https://www.tradingview.com/widget/) free Market Quotes widget | Embedded with TradingView's attribution. ETF quotes may be delayed. Only symbols TradingView allows in free widgets are used. |
 | Live calendar | [Investing.com](https://www.investing.com/webmaster-tools) embeddable economic calendar widget | Shown with Investing.com's attribution. Fastest place to see an actual print. |
 
 This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis. By using this site you agree to the [FRED® API Terms of Use](https://fred.stlouisfed.org/docs/api/terms_of_use.html).

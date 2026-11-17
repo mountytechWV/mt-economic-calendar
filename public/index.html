@@ -771,7 +771,7 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
             <div class="kpi"><h5><span class="dot" id="kDot"></span>Feed</h5><div class="row"><div class="v" id="kFeed">—</div><div class="s" id="kFeedS">—</div></div></div>
           </div>
           <div class="mkts">
-            <div class="mkh"><span>Markets</span><small>via TradingView · futures and quotes may be delayed</small></div>
+            <div class="mkh"><span>Markets</span><small>via TradingView · ETF quotes may be delayed</small></div>
             <div class="mkw" id="mktWidget"></div>
           </div>
         </aside>
@@ -936,7 +936,7 @@ const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- backend: the site's own /api plus browser storage ---------- */
-const APP_VERSION = "4.0.0";
+const APP_VERSION = "4.0.1";
 const LOCAL_FILE = location.protocol === "file:";       // opened straight from disk: preview with sample data
 const LS = { get(k,d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 let SCHEDULE = [];
@@ -1787,27 +1787,26 @@ function syncCols(){
 }
 /* ---------- markets board (TradingView free widget) ---------- */
 const MARKETS = [
-  {name:"Indexes", symbols:[
+  // Only symbols TradingView allows in free widgets. CME/CBOE/ICE futures, VIX,
+  // TVC yields and DXY are blocked ("only available on TradingView").
+  {name:"Indexes (trade ~24h, track the futures)", symbols:[
     {name:"FOREXCOM:DJI", displayName:"Dow Jones"},
     {name:"FOREXCOM:NSXUSD", displayName:"Nasdaq 100"},
-    {name:"FOREXCOM:SPXUSD", displayName:"S&P 500"},
-    {name:"TVC:VIX", displayName:"VIX"}]},
+    {name:"FOREXCOM:SPXUSD", displayName:"S&P 500"}]},
   {name:"ETFs", symbols:[
-    {name:"AMEX:SPY", displayName:"SPY"},
-    {name:"NASDAQ:QQQ", displayName:"QQQ"},
+    {name:"AMEX:SPY", displayName:"SPY (S&P 500)"},
+    {name:"NASDAQ:QQQ", displayName:"QQQ (Nasdaq 100)"},
     {name:"AMEX:IWM", displayName:"IWM (Russell 2000)"},
-    {name:"NASDAQ:TLT", displayName:"TLT (20+ yr Treasuries)"}]},
-  {name:"Futures", symbols:[
-    {name:"CME_MINI:ES1!", displayName:"S&P 500 E-mini (ES)"},
-    {name:"CME_MINI:NQ1!", displayName:"Nasdaq E-mini (NQ)"},
-    {name:"CBOT_MINI:YM1!", displayName:"Dow E-mini (YM)"},
-    {name:"NYMEX:CL1!", displayName:"Crude Oil (CL)"},
-    {name:"COMEX:GC1!", displayName:"Gold (GC)"}]},
-  {name:"Rates & Dollar", symbols:[
-    {name:"TVC:US10Y", displayName:"US 10Y Yield"},
-    {name:"TVC:US02Y", displayName:"US 2Y Yield"},
-    {name:"CBOT:ZN1!", displayName:"10Y T-Note (ZN)"},
-    {name:"TVC:DXY", displayName:"Dollar Index (DXY)"}]}
+    {name:"AMEX:DIA", displayName:"DIA (Dow)"}]},
+  {name:"Commodities", symbols:[
+    {name:"OANDA:WTICOUSD", displayName:"Crude Oil (WTI)"},
+    {name:"OANDA:XAUUSD", displayName:"Gold"}]},
+  {name:"Bonds & Dollar", symbols:[
+    {name:"OANDA:USB10YUSD", displayName:"US 10Y T-Note"},
+    {name:"NASDAQ:TLT", displayName:"TLT (20+ yr Treasuries)"},
+    {name:"NASDAQ:IEF", displayName:"IEF (7-10 yr Treasuries)"},
+    {name:"NASDAQ:SHY", displayName:"SHY (1-3 yr Treasuries)"},
+    {name:"AMEX:UUP", displayName:"UUP (US Dollar)"}]}
 ];
 function loadMarkets(){
   const box = $("#mktWidget"); if (!box || box.dataset.done) return;
