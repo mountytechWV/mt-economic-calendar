@@ -1857,12 +1857,12 @@ function demoEvents(){
   return [
     [0,5,0,"USD","FOMC Member Barr Speaks","Low","","",""],[0,8,30,"USD","Empire State Manufacturing Index","Medium","","17.6","25.5"],
     [0,9,48,"USD","Cleveland Fed Inflation Expectations","Low","","","3.3%"],[0,12,0,"USD","Fed Chairman Warsh Speaks","High","","",""],
-    [0,14,15,"USD","FOMC Member Hammack Speaks","Low","","",""],[1,8,15,"USD","ADP Weekly Employment Change","Low","","","19.8K"],
+    [0,14,15,"USD","FOMC Member Hammack Speaks","Low","","",""],[1,8,15,"USD","ADP Weekly Employment Change","Medium","","","19.8K"],
     [1,8,30,"USD","Core Retail Sales m/m","High","","0.4%","0.9%"],[1,8,30,"USD","Retail Sales m/m","High","","0.2%","0.8%"],
-    [1,8,30,"USD","Import Prices m/m","Low","","0.7%","1.1%"],[1,9,15,"USD","Industrial Production m/m","Low","","0.1%","0.7%"],
+    [1,8,30,"USD","Import Prices m/m","Medium","","0.7%","1.1%"],[1,9,15,"USD","Industrial Production m/m","Medium","","0.1%","0.7%"],
     [1,10,0,"USD","NAHB Housing Market Index","Low","","29","29"],[2,8,30,"USD","Building Permits","Medium","","1.38M","1.40M"],
-    [2,10,30,"USD","Crude Oil Inventories","Medium","","-1.5M","3.8M"],[2,14,0,"USD","FOMC Meeting Minutes","High","","",""],
-    [3,8,30,"USD","Unemployment Claims","High","","215K","213K"],[3,8,30,"USD","Philly Fed Manufacturing Index","Medium","","8.3","16.3"],
+    [2,10,30,"USD","Crude Oil Inventories","High","","-1.5M","3.8M"],[2,14,0,"USD","FOMC Meeting Minutes","High","","",""],
+    [3,8,30,"USD","Unemployment Claims","High","","215K","213K"],[3,8,30,"USD","Philly Fed Manufacturing Index","High","","8.3","16.3"],
     [3,10,0,"USD","Existing Home Sales","Medium","","4.10M","4.06M"],[4,9,45,"USD","Flash Manufacturing PMI","High","","52.1","52.5"],
     [4,10,0,"USD","Revised UoM Consumer Sentiment","Medium","","57.0","56.4"],[1,2,0,"EUR","German ZEW Economic Sentiment","High","","38.5","39.3"]
   ].map(r => ({title:r[4],country:r[3],date:at(r[0],r[1],r[2]),impact:r[5],actual:r[6],forecast:r[7],previous:r[8]}));

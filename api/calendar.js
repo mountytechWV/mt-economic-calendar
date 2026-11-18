@@ -6,11 +6,43 @@
 const FEED_URL = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
 let warm = null; // survives between calls while this function instance stays warm
 
+// Forex Factory and Investing.com don't always agree on how big an event is. The main
+// screen is the Investing.com calendar, so these overrides bring the feed's impact up to
+// match it (alerts, ticker, "next high impact" and auto-alerts all read this field).
+// Investing.com 3 bulls = High, 2 bulls = Medium. Overrides only ever RAISE an event:
+// if Forex Factory already rates it the same or higher, its rating is kept.
+// Key: "COUNTRY|exact Forex Factory event title" -> impact.
+// Fed speeches are left alone: Investing.com rates them speaker by speaker.
+const IMPACT_OVERRIDES = {
+  // Investing.com: 3 bulls
+  "USD|Crude Oil Inventories": "High",
+  "USD|Philly Fed Manufacturing Index": "High",
+  "USD|Unemployment Claims": "High",
+  // Investing.com: 2 bulls
+  "USD|Empire State Manufacturing Index": "Medium",
+  "USD|ADP Weekly Employment Change": "Medium",
+  "USD|Import Prices m/m": "Medium",
+  "USD|Industrial Production m/m": "Medium",
+  "USD|Business Inventories m/m": "Medium",
+  "USD|API Weekly Statistical Bulletin": "Medium",
+  "USD|Building Permits": "Medium",
+  "USD|Housing Starts": "Medium",
+  "USD|Pending Home Sales m/m": "Medium",
+  "USD|TIC Long-Term Purchases": "Medium",
+  "USD|CB Leading Index m/m": "Medium",
+};
+const RANK = { Holiday: 0, Low: 1, Medium: 2, High: 3 };
+const impactFor = e => {
+  const ff = e.impact || "";
+  const o = IMPACT_OVERRIDES[`${e.country}|${e.title}`];
+  return o && (RANK[o] || 0) > (RANK[ff] || 0) ? o : ff;
+};
+
 const pick = e => ({
   title: e.title || "",
   country: e.country || "",
   date: e.date || "",
-  impact: e.impact || "",
+  impact: impactFor(e),
   forecast: e.forecast || "",
   previous: e.previous || "",
   actual: e.actual || "",
