@@ -1,0 +1,15 @@
+{
+  "name": "MT Economic Calendar",
+  "links": [
+    {
+      "name": "LE Trading Academy version",
+      "url": "https://PASTE-LE-VERCEL-URL-HERE.vercel.app",
+      "note": "White and purple, for Elly's Discord"
+    },
+    {
+      "name": "Kingdom Traders version",
+      "url": "https://PASTE-KT-VERCEL-URL-HERE.vercel.app",
+      "note": "Navy, purple and gold"
+    }
+  ]
+}
