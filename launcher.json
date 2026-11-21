@@ -1,15 +1,14 @@
 {
   "name": "MT Economic Calendar",
   "links": [
-    {
-      "name": "LE Trading Academy version",
-      "url": "https://PASTE-LE-VERCEL-URL-HERE.vercel.app",
-      "note": "White and purple, for Elly's Discord"
-    },
-    {
-      "name": "Kingdom Traders version",
-      "url": "https://PASTE-KT-VERCEL-URL-HERE.vercel.app",
-      "note": "Navy, purple and gold"
-    }
-  ]
+    { "name": "MT version", "url": "https://mt-economic-calendar.vercel.app", "main": true },
+    { "name": "LE Trading Academy version", "url": "https://le-economic-calendar.vercel.app", "note": "For Elly's Discord" },
+    { "name": "Kingdom Traders version", "url": "https://kingdom-traders-econ-calendar.vercel.app" }
+  ],
+  "showcase": {
+    "category": "Trading Tools",
+    "order": 1,
+    "url": "https://mt-economic-calendar.vercel.app",
+    "description": "A Wall Street style US economic calendar that runs in your browser. Countdown to the next high-impact release, a scrolling ticker, world clocks, NYSE session status, alerts, actual numbers, and a history chart for every major release.\nNothing to install and no sign-up."
+  }
 }
