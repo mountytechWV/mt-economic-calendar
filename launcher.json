@@ -9,6 +9,10 @@
     "category": "Trading Tools",
     "order": 1,
     "url": "https://mt-economic-calendar.vercel.app",
-    "description": "A Wall Street style US economic calendar that runs in your browser. Countdown to the next high-impact release, a scrolling ticker, world clocks, NYSE session status, alerts, actual numbers, and a history chart for every major release.\nNothing to install and no sign-up."
+    "description": "A Wall Street style US economic calendar that runs in your browser. Countdown to the next high-impact release, a scrolling ticker, world clocks, NYSE session status, alerts, actual numbers, and a history chart for every major release.\nNothing to install and no sign-up.",
+    "links": [
+      { "name": "LE Trading Academy version", "url": "https://le-economic-calendar.vercel.app", "note": "White and purple theme" },
+      { "name": "Kingdom Traders version", "url": "https://kingdom-traders-econ-calendar.vercel.app", "note": "Navy, purple and gold theme" }
+    ]
   }
 }
