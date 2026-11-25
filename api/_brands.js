@@ -33,7 +33,7 @@ const BRANDS = {
     icons: { favicon: "/icon.png", i192: "/icon-192.png", i512: "/icon-512.png" },
     community: null,
     credit: "Built by MountyTech",
-    creditUrl: "https://github.com/mountytechWV/mt-economic-calendar",
+    creditUrl: "https://mountytechwv.github.io/apps/",
     defaults: {},
   },
 

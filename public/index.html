@@ -1877,7 +1877,7 @@ async function boot(){
   ALERTS = Object.assign({armed:{}, muted:[]}, r.alerts || {});
   NATIVE = "Notification" in window;
   curView = "live";
-  const B = window.BRAND || {name:"MT Economic Calendar", mark:"MT", title:["Econ","Terminal"], sub:"US Macro Calendar", credit:"Built by MountyTech", creditUrl:"", community:null};
+  const B = window.BRAND || {name:"MT Economic Calendar", mark:"MT", title:["Econ","Terminal"], sub:"US Macro Calendar", credit:"Built by MountyTech", creditUrl:"https://mountytechwv.github.io/apps/", community:null};
   $("#bMark").innerHTML = B.logo ? `<img src="${esc(B.logo)}" alt="${esc(B.name)}">` : esc(B.mark);
   $("#bName").innerHTML = `${esc(B.title[0])} <span>${esc(B.title[1])}</span>`;
   $("#ver").textContent = (B.sub + (LOCAL_FILE ? " · PREVIEW" : ` · V${r.version}`)).toUpperCase();
