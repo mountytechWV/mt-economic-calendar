@@ -13,7 +13,7 @@ const ALLOWED = new Set([
   "A191RL1Q225SBEA", "ADXTNO", "BOPGSTB", "BUSINV", "CCSA", "CES0500000003", "CPIAUCNS",
   "CPIAUCSL", "CPILFENS", "CPILFESL", "DGORDER", "GACDFSA066MSFRBPHI", "GACDISA066MSFRBNY",
   "HOUST", "HSN1F", "ICSA", "INDPRO", "IR", "JTSJOL", "PAYEMS", "PCE", "PCEPI", "PCEPILFE",
-  "PERMIT", "PI", "PPIFES", "PPIFIS", "RSAFS", "RSFSXMV", "TCU", "UNRATE", "WCESTUS1",
+  "PERMIT", "PI", "PPIFES", "PPIFIS", "RSAFS", "RSFSXMV", "TCU", "UNRATE",
 ]);
 const UNITS = new Set(["lin", "chg", "pch", "pc1"]);
 const API = "https://api.stlouisfed.org/fred/";
