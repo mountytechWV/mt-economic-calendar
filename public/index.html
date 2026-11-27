@@ -310,6 +310,8 @@ tr.det td{padding:0;background:var(--detbg);border-bottom:1px solid var(--line2)
 
 .brand .mark img{width:100%;height:100%;object-fit:contain;padding:3px;background:#00051B;display:block}
 .brand .mark:has(img){padding:0;background:transparent!important}
+.brand .mark.on-accent:has(img){background:var(--amber)!important}
+.brand .mark.on-accent img{padding:7px;background:none}
 .comm{height:36px;padding:0 14px;display:flex;align-items:center;gap:8px;background:var(--amber);color:var(--on-accent);font:700 12.5px var(--cond);letter-spacing:1.6px;text-transform:uppercase;white-space:nowrap;text-decoration:none;cursor:pointer}
 .comm:hover{background:var(--amber-hover)}
 .comm[hidden]{display:none!important}
@@ -1877,7 +1879,8 @@ async function boot(){
   ALERTS = Object.assign({armed:{}, muted:[]}, r.alerts || {});
   NATIVE = "Notification" in window;
   curView = "live";
-  const B = window.BRAND || {name:"MT Economic Calendar", mark:"MT", title:["Econ","Terminal"], sub:"US Macro Calendar", credit:"Built by MountyTech", creditUrl:"https://mountytechwv.github.io/apps/", community:null};
+  const B = window.BRAND || {name:"MT Economic Calendar", mark:"MT", logo:"brands/mt/mark.svg", logoOnAccent:true, title:["Econ","Terminal"], sub:"US Macro Calendar", credit:"Built by MountyTech", creditUrl:"https://mountytechwv.github.io/apps/", community:null};
+  $("#bMark").classList.toggle("on-accent", !!(B.logo && B.logoOnAccent));
   $("#bMark").innerHTML = B.logo ? `<img src="${esc(B.logo)}" alt="${esc(B.name)}">` : esc(B.mark);
   $("#bName").innerHTML = `${esc(B.title[0])} <span>${esc(B.title[1])}</span>`;
   $("#ver").textContent = (B.sub + (LOCAL_FILE ? " · PREVIEW" : ` · V${r.version}`)).toUpperCase();

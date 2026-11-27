@@ -6,6 +6,7 @@
 //   short       home-screen label (keep it under ~12 characters)
 //   mark        letters in the square logo block (used when there's no logo image)
 //   logo        optional square logo image under /public, e.g. "/brands/le/logo.png"
+//   logoOnAccent  true = the logo is a see-through glyph that sits on the accent-colored block
 //   title       header wordmark: [plain word, accent word]
 //   sub         small line under the wordmark
 //   theme       "dark" or "light"
@@ -22,7 +23,8 @@ const BRANDS = {
     name: "MT Economic Calendar",
     short: "MT Econ",
     mark: "MT",
-    logo: "",
+    logo: "/brands/mt/mark.svg",  // countdown ring + impact bars, drawn on the accent block
+    logoOnAccent: true,
     title: ["Econ", "Terminal"],
     sub: "US Macro Calendar",
     theme: "dark",
