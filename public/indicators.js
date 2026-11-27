@@ -114,7 +114,7 @@ const INDICATORS = [
   ind("nahb", "NAHB Housing Market Index", "Homebuilder confidence. Above 50 means more builders see conditions as good than poor.", BULL_UP, "NAHB"),
 
   // ---- energy ----
-  ind("^crude oil inventories", "EIA Crude Oil Inventories", "Weekly change in US commercial crude oil stocks, in barrels.", "A bigger than expected build usually weighs on oil prices; a draw supports them.", "EIA_OIL", {s:"WCESTUS1", u:"chg", dec:1, scale:0.001, suf:"M"}),
+  ind("^crude oil inventories", "EIA Crude Oil Inventories", "Weekly change in US commercial crude oil stocks, in barrels.", "A bigger than expected build usually weighs on oil prices; a draw supports them.", "EIA_OIL"),   // EIA weekly stocks aren't on FRED
   ind("natural gas storage", "EIA Natural Gas Storage", "Weekly change in natural gas held in underground storage.", "A smaller injection (or bigger draw) than expected usually supports natural gas prices.", "EIA_GAS"),
   ind("^api weekly", "API Weekly Statistical Bulletin", "Industry estimate of oil inventories released the evening before the official EIA data.", "Traders use it to position ahead of Wednesday's EIA report.", "API"),
 

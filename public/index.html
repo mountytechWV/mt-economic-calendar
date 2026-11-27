@@ -1297,7 +1297,7 @@ async function fredFor(f, force){
   const r = await Backend.fred(f.s, f.u, 30);
   FREDC[k] = {t: Date.now(), r};
   if (r && r.ok){ FRED_STATE = "ok"; FRED_ERR = ""; }
-  else if (r){ FRED_ERR = r.error || "FRED error"; if (/not set up/i.test(FRED_ERR)) FRED_STATE = "off"; }
+  else if (r){ FRED_ERR = (r.error || "FRED error") + (/not set up/i.test(r.error || "") ? "" : ` (${f.s})`); if (/not set up/i.test(FRED_ERR)) FRED_STATE = "off"; }
   renderFredStatus();
   return r;
 }
