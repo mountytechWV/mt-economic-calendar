@@ -32,7 +32,7 @@ const BRANDS = {
     accentHover: "#FFC233",
     onAccent: "#000000",
     background: "#05070A",
-    icons: { favicon: "/icon.png", i192: "/icon-192.png", i512: "/icon-512.png" },
+    icons: { favicon: "/brands/mt/favicon.png", i192: "/brands/mt/icon-192.png", i512: "/brands/mt/icon-512.png" },
     community: null,
     credit: "Built by MountyTech",
     creditUrl: "https://mountytechwv.github.io/apps/",
