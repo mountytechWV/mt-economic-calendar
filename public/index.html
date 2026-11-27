@@ -1900,5 +1900,10 @@ let booted = false;
 function start(){ if (!booted){ booted = true; boot(); } }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 </script>
+<!-- Visitor counting (GoatCounter): records the site address with each page so every app and version shows separately -->
+<script>
+  window.goatcounter = { path: function (p) { return location.host + p } };
+</script>
+<script data-goatcounter="https://mountytech.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
