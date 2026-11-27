@@ -58,7 +58,7 @@ const BRANDS = {
     credit: "Brought to you by LE Trading Academy",
     creditUrl: "https://letradingacademy.com/",
     developer: "Developed by MountyTech",
-    developerUrl: "https://github.com/mountytechWV",
+    developerUrl: "https://mountytechwv.github.io/apps/",
     defaults: { widgetDark: false },
   },
 
@@ -94,7 +94,7 @@ const BRANDS = {
     credit: "Kingdom Traders",
     creditUrl: "",
     developer: "Developed by MountyTech",
-    developerUrl: "https://github.com/mountytechWV",
+    developerUrl: "https://mountytechwv.github.io/apps/",
     defaults: {},
   },
 };
